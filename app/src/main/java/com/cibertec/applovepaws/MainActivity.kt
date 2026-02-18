@@ -11,16 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cibertec.applovepaws.core.network.RetrofitClient
-import com.cibertec.applovepaws.feature_adoption.data.repository.AdopcionRepository
-import com.cibertec.applovepaws.feature_adoption.ui.SolicitudScreen
-import com.cibertec.applovepaws.feature_adoption.SolicitudViewModel
+import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionRepository
+import com.cibertec.applovepaws.feature_adopcion.ui.SolicitudScreen
+import com.cibertec.applovepaws.feature_adopcion.SolicitudViewModel
 import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
+import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Instanciar el repositorio con Retrofit
-        val repo = AdopcionRepository(RetrofitClient.api)
+        val repo = AdopcionRepository(RetrofitClient.adoptionApi)
         val viewModel = SolicitudViewModel(repo)
 
         // Usuario y Mascota de ejemplo (en producción vendrían de login y lista de mascotas)
@@ -31,12 +32,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface {
+
                     // Pantalla de Solicitud de Adopción
-                    SolicitudScreen(
+                   /** SolicitudScreen(
                         viewModel = viewModel,
                         usuarioId = usuarioId,
                         mascotaId = mascotaId
-                    )
+                    )*/
+                    MascotaScreen()
                 }
             }
         }

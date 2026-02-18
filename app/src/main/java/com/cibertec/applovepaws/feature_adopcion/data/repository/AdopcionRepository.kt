@@ -1,7 +1,7 @@
-package com.cibertec.applovepaws.feature_adoption.data.repository
+package com.cibertec.applovepaws.feature_adopcion.data.repository
 
-import com.cibertec.applovepaws.feature_adoption.data.api.AdoptionApi
-import com.cibertec.applovepaws.feature_adoption.data.dto.SolicitudAdopcionDto
+import com.cibertec.applovepaws.feature_adopcion.data.api.AdoptionApi
+import com.cibertec.applovepaws.feature_adopcion.data.dto.SolicitudAdopcionDto
 
 class AdopcionRepository(private val api: AdoptionApi) {
 

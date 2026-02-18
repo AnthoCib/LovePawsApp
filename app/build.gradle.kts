@@ -50,13 +50,16 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-        // Retrofit
-        implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-        implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-        implementation ("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
+    // Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
 
-        // Coroutines
-        implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Coroutines
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation(libs.androidx.runtime)
 
     testImplementation(libs.junit)

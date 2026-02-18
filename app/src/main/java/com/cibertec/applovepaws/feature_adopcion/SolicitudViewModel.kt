@@ -1,9 +1,9 @@
-package com.cibertec.applovepaws.feature_adoption
+package com.cibertec.applovepaws.feature_adopcion
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cibertec.applovepaws.feature_adoption.data.dto.SolicitudAdopcionDto
-import com.cibertec.applovepaws.feature_adoption.data.repository.AdopcionRepository
+import com.cibertec.applovepaws.feature_adopcion.data.dto.SolicitudAdopcionDto
+import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
