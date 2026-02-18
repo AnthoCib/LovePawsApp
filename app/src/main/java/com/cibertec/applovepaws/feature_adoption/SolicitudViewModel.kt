@@ -1,9 +1,9 @@
-package com.cibertec.applovepaws.ui.adopcion
+package com.cibertec.applovepaws.feature_adoption
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cibertec.applovepaws.data.dto.SolicitudAdopcionDto
-import com.cibertec.applovepaws.data.repository.AdopcionRepository
+import com.cibertec.applovepaws.feature_adoption.data.dto.SolicitudAdopcionDto
+import com.cibertec.applovepaws.feature_adoption.data.repository.AdopcionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,7 +19,11 @@ class SolicitudViewModel(private val repo: AdopcionRepository) : ViewModel() {
     fun enviarSolicitud(usuarioId: Int, mascotaId: Int, pqAdoptar: String) {
         viewModelScope.launch {
             _isLoading.value = true
-            val solicitud = SolicitudAdopcionDto(usuarioId = usuarioId, mascotaId = mascotaId, pqAdoptar = pqAdoptar)
+            val solicitud = SolicitudAdopcionDto(
+                usuarioId = usuarioId,
+                mascotaId = mascotaId,
+                pqAdoptar = pqAdoptar
+            )
             val result = repo.enviarSolicitud(solicitud)
             _isLoading.value = false
 

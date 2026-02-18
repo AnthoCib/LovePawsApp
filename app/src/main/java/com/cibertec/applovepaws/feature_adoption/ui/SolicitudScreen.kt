@@ -1,4 +1,4 @@
-package com.cibertec.applovepaws.ui.adopcion
+package com.cibertec.applovepaws.feature_adoption.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.cibertec.applovepaws.feature_adoption.SolicitudViewModel
 
 @Composable
 fun SolicitudScreen(viewModel: SolicitudViewModel, usuarioId: Int, mascotaId: Int) {

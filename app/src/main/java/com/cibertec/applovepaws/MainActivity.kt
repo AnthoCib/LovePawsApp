@@ -4,20 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.cibertec.applovepaws.data.api.RetrofitClient
-import com.cibertec.applovepaws.data.repository.AdopcionRepository
-import com.cibertec.applovepaws.ui.adopcion.SolicitudScreen
-import com.cibertec.applovepaws.ui.adopcion.SolicitudViewModel
-import com.cibertec.applovepaws.ui.theme.AppLovePawsTheme
+import com.cibertec.applovepaws.core.network.RetrofitClient
+import com.cibertec.applovepaws.feature_adoption.data.repository.AdopcionRepository
+import com.cibertec.applovepaws.feature_adoption.ui.SolicitudScreen
+import com.cibertec.applovepaws.feature_adoption.SolicitudViewModel
+import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

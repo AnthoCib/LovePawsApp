@@ -1,6 +1,6 @@
-package com.cibertec.applovepaws.data.api
+package com.cibertec.applovepaws.feature_adoption.data.api
 
-import com.cibertec.applovepaws.data.dto.SolicitudAdopcionDto
+import com.cibertec.applovepaws.feature_adoption.data.dto.SolicitudAdopcionDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

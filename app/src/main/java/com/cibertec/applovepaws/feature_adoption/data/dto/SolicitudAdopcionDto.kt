@@ -1,4 +1,4 @@
-package com.cibertec.applovepaws.data.dto
+package com.cibertec.applovepaws.feature_adoption.data.dto
 
 class SolicitudAdopcionDto (    val id: Int? = null,
                                 val usuarioId: Int,

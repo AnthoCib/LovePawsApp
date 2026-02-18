@@ -1,4 +1,4 @@
-package com.cibertec.applovepaws.ui.theme
+package com.cibertec.applovepaws.core.theme
 
 import androidx.compose.ui.graphics.Color
 

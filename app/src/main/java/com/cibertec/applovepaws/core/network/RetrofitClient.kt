@@ -1,5 +1,6 @@
-package com.cibertec.applovepaws.data.api
+package com.cibertec.applovepaws.core.network
 
+import com.cibertec.applovepaws.feature_adoption.data.api.AdoptionApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
