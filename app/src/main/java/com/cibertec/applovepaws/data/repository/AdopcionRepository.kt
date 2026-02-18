@@ -1,0 +1,20 @@
+package com.cibertec.applovepaws.data.repository
+
+import com.cibertec.applovepaws.data.api.AdoptionApi
+import com.cibertec.applovepaws.data.dto.SolicitudAdopcionDto
+
+class AdopcionRepository(private val api: AdoptionApi) {
+
+     fun enviarSolicitud(solicitud: SolicitudAdopcionDto): Result<SolicitudAdopcionDto> {
+        return try {
+            val response = api.crearSolicitud(solicitud)
+            if (response.isSuccessful) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error ${response.code()} - ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}
