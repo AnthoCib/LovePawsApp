@@ -1,5 +1,6 @@
 package com.cibertec.applovepaws.feature_mascota
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +28,7 @@ class MascotaViewModel : ViewModel() {
             try {
                 mascotas = repo.obtenerMascotas()
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("API_ERROR", e.message ?: "Error")
             }
 
             loading = false
