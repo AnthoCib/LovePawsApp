@@ -15,6 +15,7 @@ import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionReposit
 import com.cibertec.applovepaws.feature_adopcion.ui.SolicitudScreen
 import com.cibertec.applovepaws.feature_adopcion.SolicitudViewModel
 import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
+import com.cibertec.applovepaws.feature_login.ui.LoginScreen
 import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
 
 class MainActivity : ComponentActivity() {
@@ -39,7 +40,8 @@ class MainActivity : ComponentActivity() {
                         usuarioId = usuarioId,
                         mascotaId = mascotaId
                     )*/
-                    MascotaScreen()
+                    LoginScreen()
+                    //MascotaScreen()
                 }
             }
         }
