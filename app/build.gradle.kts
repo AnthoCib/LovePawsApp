@@ -54,18 +54,30 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    //FireBase
+
+// Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-    // Retrofit
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation ("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
 
-    // Coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+// Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    implementation("io.coil-kt:coil-compose:2.6.0")
+// OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+// DataStore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+// Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
+// Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+// Coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(libs.androidx.runtime)
 
     testImplementation(libs.junit)
