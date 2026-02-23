@@ -30,11 +30,18 @@ import com.cibertec.applovepaws.feature_login.LoginViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-            onIrARegistro: () -> Unit = {}
+            onIrARegistro: () -> Unit = {},
+            onLoginSuccess: () -> Unit = {}
 ) {
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    LaunchedEffect(viewModel.loginSuccess) {
+        if (viewModel.loginSuccess) {
+            onLoginSuccess()
+        }
+    }
 
     Column(
         modifier = Modifier

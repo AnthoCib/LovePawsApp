@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.cibertec.applovepaws.core.network.RetrofitClient
 import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionRepository
-import com.cibertec.applovepaws.feature_adopcion.ui.SolicitudScreen
 import com.cibertec.applovepaws.feature_adopcion.SolicitudViewModel
 import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
+import com.cibertec.applovepaws.feature_login.LoginViewModelFactory
 import com.cibertec.applovepaws.feature_login.ui.LoginScreen
 import com.cibertec.applovepaws.feature_login.ui.RegisterScreen
 import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cibertec.applovepaws.feature_home.ui.HomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,18 +47,26 @@ class MainActivity : ComponentActivity() {
                         usuarioId = usuarioId,
                         mascotaId = mascotaId
                     )*/
-                   var pantalla by remember { mutableStateOf("login") }
+                   var pantalla by remember { mutableStateOf("home") }
 
                     when (pantalla) {
-                        "login" -> LoginScreen(
-                            onIrARegistro = { pantalla = "register" }
+                        "home"     -> HomeScreen(
+                            onIrACatalogo  = { pantalla = "catalogo" },
+                            onIrALogin     = { pantalla = "login" },
+                            onIrARegistro  = { pantalla = "register" },
+                            onCerrarSesion = { pantalla = "home" }
+                        )
+                        "login"    -> LoginScreen(
+                            viewModel      = viewModel(factory = LoginViewModelFactory(applicationContext)),
+                            onIrARegistro  = { pantalla = "register" },
+                            onLoginSuccess = { pantalla = "home" }
                         )
                         "register" -> RegisterScreen(
                             onRegisterSuccess = { pantalla = "login" },
-                            onCancelar = { pantalla = "login" }
+                            onCancelar        = { pantalla = "login" }
                         )
+                        "catalogo" -> MascotaScreen()
                     }
-                    //MascotaScreen()
                 }
             }
         }
