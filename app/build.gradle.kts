@@ -53,7 +53,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-
+    implementation("androidx.navigation:navigation-compose:2.7.7")
     //FireBase
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     // Retrofit
