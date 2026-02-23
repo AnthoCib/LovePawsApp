@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "860774517205",
+    "firebase_url": "https://eduproycibertec-default-rtdb.firebaseio.com",
+    "project_id": "eduproycibertec",
+    "storage_bucket": "eduproycibertec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860774517205:android:ac5891d898edec4226955c",
+        "android_client_info": {
+          "package_name": "com.cibertec.applovepaws"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPe9EOoOdhtcu9yoUrd-SwCArTz3rkZBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860774517205:android:1dca9ae3f13172ca26955c",
+        "android_client_info": {
+          "package_name": "com.example.appproyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPe9EOoOdhtcu9yoUrd-SwCArTz3rkZBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
