@@ -5,47 +5,50 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cibertec.applovepaws.feature_login.dto.LoginRequestDto
+import com.cibertec.applovepaws.feature_login.dto.RegisterRequestDto
 import com.cibertec.applovepaws.feature_login.repository.AuthRepository
 import kotlinx.coroutines.launch
 
-class LoginViewModel: ViewModel() {
+class RegisterViewModel: ViewModel() {
     private val repo = AuthRepository()
+
     var loading by mutableStateOf(false)
         private set
 
-    var loginSuccess by mutableStateOf(false)
+    var registerSuccess by mutableStateOf(false)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    fun login(
+    fun register(
+        nombre: String,
+        correo: String,
         username: String,
-        password: String
+        password: String,
+        telefono: String,
+        direccion: String
     ) {
-
         viewModelScope.launch {
-
             loading = true
             errorMessage = null
 
             try {
-
-                val response = repo.login(LoginRequestDto(
-                    username = username,
-                    password = password
-                ))
+                val response = repo.register(
+                    RegisterRequestDto(
+                        nombre = nombre,
+                        correo = correo,
+                        username = username,
+                        password = password,
+                        telefono = telefono,
+                        direccion = direccion
+                    )
+                )
 
                 if (response.isSuccessful) {
-
-                    val token = response.body()?.token
-                    loginSuccess = true
-
-                    println("TOKEN: $token")
-
+                    registerSuccess = true
                 } else {
-                    errorMessage = "Credenciales incorrectas"
+                    errorMessage = "Error al registrar: ${response.code()}"
                 }
 
             } catch (e: Exception) {

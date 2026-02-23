@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +29,8 @@ import com.cibertec.applovepaws.feature_login.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+            onIrARegistro: () -> Unit = {}
 ) {
 
     var username by remember { mutableStateOf("") }
@@ -40,7 +42,9 @@ fun LoginScreen(
             .padding(24.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center
-    ) {
+
+    )
+    {
 
         Text(
             text = "Iniciar sesión",
@@ -85,6 +89,11 @@ fun LoginScreen(
         viewModel.errorMessage?.let {
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = it, color = Color.Red)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        TextButton (onClick = onIrARegistro) {
+            Text("¿No tienes cuenta? Regístrate")
         }
     }
 }
