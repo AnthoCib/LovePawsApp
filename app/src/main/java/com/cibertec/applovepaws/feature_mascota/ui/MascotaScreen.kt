@@ -32,7 +32,7 @@ fun MascotaScreen(
     LaunchedEffect(Unit) {
         viewModel.cargarMascotas()
     }
-    Text("SI VES ESTO — COMPOSE FUNCIONA")
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         if (viewModel.loading) {
