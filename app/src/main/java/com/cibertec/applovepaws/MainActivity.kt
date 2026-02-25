@@ -3,63 +3,19 @@ package com.cibertec.applovepaws
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.cibertec.applovepaws.core.network.RetrofitClient
-import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionRepository
-import com.cibertec.applovepaws.feature_adopcion.ui.SolicitudScreen
-import com.cibertec.applovepaws.feature_adopcion.SolicitudViewModel
-import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
-import com.cibertec.applovepaws.feature_login.ui.AuthNavigation
-import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
+import com.cibertec.applovepaws.ui.navigation.LovePawsApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Instanciar el repositorio con Retrofit
-        val repo = AdopcionRepository(RetrofitClient.adoptionApi)
-        val viewModel = SolicitudViewModel(repo)
-
-        // Usuario y Mascota de ejemplo (en producción vendrían de login y lista de mascotas)
-        val usuarioId = 1010
-        val mascotaId = 6001
-
-        enableEdgeToEdge()
         setContent {
             MaterialTheme {
                 Surface {
-
-                    // Pantalla de Solicitud de Adopción
-                   /** SolicitudScreen(
-                        viewModel = viewModel,
-                        usuarioId = usuarioId,
-                        mascotaId = mascotaId
-                    )*/
-                    AuthNavigation()
-                    //MascotaScreen()
+                    LovePawsApp()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppLovePawsTheme {
-        Greeting("Android")
     }
 }
