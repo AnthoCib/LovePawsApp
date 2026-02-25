@@ -2,6 +2,7 @@ package com.cibertec.applovepaws.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -75,8 +76,9 @@ fun LovePawsApp(viewModel: LovePawsViewModel = viewModel()) {
                 selectedPet = uiState.selectedPet,
                 questions = viewModel.defaultQuestions(),
                 onSubmit = { applicant, answers ->
-                    viewModel.registerAdoptionRequest(applicant, answers)
-                    navController.navigate(NavRoutes.Confirmation)
+                    viewModel.registerAdoptionRequest(applicant, answers) {
+                        navController.navigate(NavRoutes.Confirmation)
+                    }
                 },
                 onBack = { navController.popBackStack() }
             )
@@ -92,6 +94,9 @@ fun LovePawsApp(viewModel: LovePawsViewModel = viewModel()) {
             )
         }
         composable(NavRoutes.Requests) {
+            LaunchedEffect(Unit) {
+                viewModel.loadMyRequests()
+            }
             MyRequestsScreen(
                 requests = uiState.requests,
                 onBack = { navController.popBackStack() }

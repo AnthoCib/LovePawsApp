@@ -1,11 +1,24 @@
 package com.cibertec.applovepaws.data
 
+import com.cibertec.applovepaws.BuildConfig
+import com.cibertec.applovepaws.core.network.RetrofitClient
+import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.model.Pet
 import kotlinx.coroutines.delay
 
 interface PetRepository {
     suspend fun getPets(): List<Pet>
     suspend fun getPetById(id: String): Pet?
+}
+
+class RemotePetRepository : PetRepository {
+    override suspend fun getPets(): List<Pet> {
+        return RetrofitClient.mascotaApi.listarMascotas().map { it.toPet() }
+    }
+
+    override suspend fun getPetById(id: String): Pet? {
+        return getPets().firstOrNull { it.id == id }
+    }
 }
 
 /**
@@ -49,4 +62,31 @@ class FakePetRepository : PetRepository {
         delay(200)
         return pets.firstOrNull { it.id == id }
     }
+}
+
+class HybridPetRepository(
+    private val remote: PetRepository = RemotePetRepository(),
+    private val fake: PetRepository = FakePetRepository()
+) : PetRepository {
+
+    override suspend fun getPets(): List<Pet> {
+        return runCatching { remote.getPets() }
+            .getOrElse { if (BuildConfig.USE_FAKE_FALLBACK) fake.getPets() else emptyList() }
+    }
+
+    override suspend fun getPetById(id: String): Pet? {
+        return runCatching { remote.getPetById(id) }
+            .getOrElse { if (BuildConfig.USE_FAKE_FALLBACK) fake.getPetById(id) else null }
+    }
+}
+
+private fun MascotaDto.toPet(): Pet {
+    return Pet(
+        id = id.toString(),
+        name = nombre,
+        age = "$edad años",
+        breed = razaNombre ?: "Sin raza",
+        imageUrl = fotoUrl.orEmpty(),
+        description = descripcion ?: "Sin descripción"
+    )
 }
