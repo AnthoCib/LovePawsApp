@@ -8,29 +8,33 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
-class MascotaViewModel : ViewModel() {
+class MascotaViewModel(
+    private val repository: MascotaRepository
+) : ViewModel() {
 
-    private val repo = MascotaRepository()
-
-    var mascotas by mutableStateOf<List<MascotaDto>>(emptyList())
-        private set
+    val mascotas = repository.obtenerMascotas()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            emptyList()
+        )
 
     var loading by mutableStateOf(false)
         private set
 
-    fun cargarMascotas() {
+    init {
+        sincronizar()
+    }
+
+    private fun sincronizar() {
         viewModelScope.launch {
             loading = true
-
-            try {
-                mascotas = repo.obtenerMascotas()
-            } catch (e: Exception) {
-                Log.e("API_ERROR", e.message ?: "Error")
-            }
-
+            repository.sincronizarMascotas()
             loading = false
         }
     }

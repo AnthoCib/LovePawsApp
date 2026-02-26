@@ -1,71 +1,47 @@
 package com.cibertec.applovepaws.feature_login
 
-import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.cibertec.applovepaws.core.session.SessionManager
-import com.cibertec.applovepaws.feature_login.dto.LoginRequestDto
-import com.cibertec.applovepaws.feature_login.repository.AuthRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val context: Context): ViewModel() {
+data class AuthUiState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val isSuccess: Boolean = false
+)
 
-    private val repo = AuthRepository()
-    var loading by mutableStateOf(false)
-        private set
+class LoginViewModel : ViewModel() {
 
-    var loginSuccess by mutableStateOf(false)
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState
 
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
-
-
-    fun login(
-        username: String,
-        password: String
-    ) {
-
+    fun login(email: String, password: String) {
         viewModelScope.launch {
+            _uiState.value = AuthUiState(isLoading = true)
 
-            loading = true
-            errorMessage = null
+            delay(1500) // Simulación backend
 
-            try {
-
-                val response = repo.login(LoginRequestDto(
-                    username = username,
-                    password = password
-                ))
-
-                if (response.isSuccessful) {
-
-                    val token = response.body()?.token
-                    val username = response.body()?.username
-                    if (token != null && username != null) {
-                        SessionManager.guardarSesion(context, token, username)
-                    }
-                    loginSuccess = true
-
-                    println("TOKEN: $token")
-
-                } else {
-                    errorMessage = "Credenciales incorrectas"
-                }
-
-            } catch (e: Exception) {
-                errorMessage = "Error de conexión"
+            if (email == "admin@lovepaws.com" && password == "123456") {
+                _uiState.value = AuthUiState(isSuccess = true)
+            } else {
+                _uiState.value = AuthUiState(error = "Invalid credentials")
             }
-
-            loading = false
         }
     }
-}
-class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return LoginViewModel(context) as T
+    fun register(name: String, email: String, password: String) {
+        viewModelScope.launch {
+            _uiState.value = AuthUiState(isLoading = true)
+
+            delay(1500)
+
+            _uiState.value = AuthUiState(isSuccess = true)
+        }
+    }
+
+    fun resetState() {
+        _uiState.value = AuthUiState()
     }
 }

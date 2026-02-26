@@ -1,206 +1,108 @@
 package com.cibertec.applovepaws.feature_login.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cibertec.applovepaws.feature_login.RegisterViewModel
-
-val AzulPrimario = Color(0xFF1565C0)
-val AzulFondo   = Color(0xFFE3F2FD)
-val GrisBoton   = Color(0xFF9E9E9E)
+import com.cibertec.applovepaws.feature_login.LoginViewModel
 
 @Composable
 fun RegisterScreen(
-    viewModel: RegisterViewModel = viewModel(),
-    onRegisterSuccess: () -> Unit,
-    onCancelar: () -> Unit
+    viewModel: LoginViewModel,
+    onNavigateBack: () -> Unit
 ) {
-    var nombre    by remember { mutableStateOf("") }
-    var correo    by remember { mutableStateOf("") }
-    var username  by remember { mutableStateOf("") }
-    var password  by remember { mutableStateOf("") }
-    var telefono  by remember { mutableStateOf("") }
-    var direccion by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(viewModel.registerSuccess) {
-        if (viewModel.registerSuccess) onRegisterSuccess()
-    }
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(AzulFondo),
-        contentAlignment = Alignment.Center
+            .background(Color(0xFFF5F3F1))
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Card(
+
+        Spacer(Modifier.height(40.dp))
+
+        Text("Start your journey",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold)
+
+        Spacer(Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Full Name") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email Address") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(Modifier.height(20.dp))
+
+        Button(
+            onClick = { viewModel.register(name, email, password) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
-                .shadow(8.dp, RoundedCornerShape(16.dp)),
+                .height(50.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF7A1A)
+            )
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(28.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                // Título
-                Text(
-                    text = "Registrar Nuevo Usuario",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AzulPrimario,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Crea tu cuenta para adoptar mascotas",
-                    fontSize = 13.sp,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Fila 1: Username + Nombre
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    CampoTexto(
-                        modifier = Modifier.weight(1f),
-                        valor = username,
-                        onValorChange = { username = it },
-                        label = "Username",
-                    )
-                    CampoTexto(
-                        modifier = Modifier.weight(1f),
-                        valor = nombre,
-                        onValorChange = { nombre = it },
-                        label = "Nombre",
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Fila 2: Correo + Contraseña
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    CampoTexto(
-                        modifier = Modifier.weight(1f),
-                        valor = correo,
-                        onValorChange = { correo = it },
-                        label = "Correo Electrónico",
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier.weight(1f),
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Contraseña", fontSize = 12.sp) },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Text(if (passwordVisible) "Ocultar" else "Ver", fontSize = 11.sp, color = AzulPrimario)
-                            }
-                        },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Teléfono (solo ocupa mitad)
-                CampoTexto(
-                    modifier = Modifier.fillMaxWidth(0.5f).align(Alignment.Start),
-                    valor = telefono,
-                    onValorChange = { telefono = it },
-                    label = "Teléfono",
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Dirección (ancho completo)
-                CampoTexto(
-                    modifier = Modifier.fillMaxWidth(),
-                    valor = direccion,
-                    onValorChange = { direccion = it },
-                    label = "Dirección",
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Error
-                viewModel.errorMessage?.let {
-                    Text(text = it, color = Color.Red, fontSize = 13.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                // Loading
-                if (viewModel.loading) {
-                    CircularProgressIndicator(color = AzulPrimario)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                // Botones: Registrar + Cancelar
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = {
-                            viewModel.register(nombre, correo, username, password, telefono, direccion)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = AzulPrimario),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Registrar", color = Color.White)
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Button(
-                        onClick = onCancelar,
-                        colors = ButtonDefaults.buttonColors(containerColor = GrisBoton),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Cancelar", color = Color.White)
-                    }
-                }
-            }
+            Text("Empezar mi aventura con mi mascota")
         }
-    }
-}
 
-@Composable
-fun CampoTexto(
-    modifier: Modifier = Modifier,
-    valor: String,
-    onValorChange: (String) -> Unit,
-    label: String
-) {
-    OutlinedTextField(
-        modifier = modifier,
-        value = valor,
-        onValueChange = onValorChange,
-        label = { Text(label, fontSize = 12.sp) },
-        singleLine = true,
-        shape = RoundedCornerShape(8.dp)
-    )
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            "Already have an account? Log In",
+            color = Color(0xFFFF7A1A),
+            modifier = Modifier.clickable { onNavigateBack() }
+        )
+    }
 }
