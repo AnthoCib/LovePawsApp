@@ -10,7 +10,6 @@ import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
 import kotlinx.coroutines.launch
 
-
 class MascotaViewModel : ViewModel() {
 
     private val repo = MascotaRepository()
@@ -34,4 +33,6 @@ class MascotaViewModel : ViewModel() {
             loading = false
         }
     }
+
+    fun obtenerMascotaPorId(id: Int): MascotaDto? = mascotas.firstOrNull { it.id == id }
 }

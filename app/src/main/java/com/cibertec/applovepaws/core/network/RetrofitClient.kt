@@ -2,6 +2,7 @@ package com.cibertec.applovepaws.core.network
 
 import com.cibertec.applovepaws.feature_adopcion.data.api.AdoptionApi
 import com.cibertec.applovepaws.feature_mascota.data.api.MascotaApi
+import com.cibertec.applovepaws.feature_login.data.api.AuthApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -34,6 +35,10 @@ object RetrofitClient {
 
     val mascotaApi: MascotaApi by lazy {
         retrofit.create(MascotaApi::class.java)
+    }
+
+    val authApi: AuthApi by lazy {
+        retrofit.create(AuthApi::class.java)
     }
 
 }

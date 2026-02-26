@@ -20,12 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import com.cibertec.applovepaws.feature_login.LoginViewModel
+import com.cibertec.applovepaws.feature_login.data.dto.LoginResponse
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (LoginResponse) -> Unit
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
@@ -34,8 +35,8 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.isSuccess) {
-        if (uiState.isSuccess) {
-            onLoginSuccess()
+        if (uiState.isSuccess && uiState.user != null) {
+            onLoginSuccess(uiState.user)
             viewModel.resetState()
         }
     }

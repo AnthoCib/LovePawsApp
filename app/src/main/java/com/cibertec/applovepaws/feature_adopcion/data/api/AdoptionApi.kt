@@ -7,7 +7,7 @@ import retrofit2.http.POST
 
 interface AdoptionApi {
     @POST("api/solicitudes")
-     fun crearSolicitud(
+    suspend fun crearSolicitud(
         @Body solicitud: SolicitudAdopcionDto
     ): Response<SolicitudAdopcionDto>
 }
