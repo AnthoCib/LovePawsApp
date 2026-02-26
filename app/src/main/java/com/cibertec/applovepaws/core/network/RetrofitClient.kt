@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2:8080/" // Cambia por tu host
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -19,8 +19,6 @@ object RetrofitClient {
         .addInterceptor(logging)
         .build()
 
-
-
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
@@ -28,12 +26,8 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-    val adoptionApi: AdoptionApi by lazy {
-        retrofit.create(AdoptionApi::class.java)
-    }
 
-    val mascotaApi: MascotaApi by lazy {
-        retrofit.create(MascotaApi::class.java)
-    }
-
+    val adoptionApi: AdoptionApi by lazy { retrofit.create(AdoptionApi::class.java) }
+    val mascotaApi: MascotaApi by lazy { retrofit.create(MascotaApi::class.java) }
+    val lovePawsApi: LovePawsApi by lazy { retrofit.create(LovePawsApi::class.java) }
 }

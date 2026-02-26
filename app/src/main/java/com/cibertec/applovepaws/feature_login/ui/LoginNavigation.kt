@@ -1,34 +1,27 @@
 package com.cibertec.applovepaws.feature_login.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.cibertec.applovepaws.feature_adopcion.ui.AdoptionFormScreen
 import com.cibertec.applovepaws.feature_login.LoginViewModel
+import com.cibertec.applovepaws.feature_mascota.ui.MascotaDetailScreen
+import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
 
 @Composable
 fun AuthNavigation() {
-
     val navController = rememberNavController()
     val viewModel: LoginViewModel = viewModel()
 
-    NavHost(
-        navController = navController,
-        startDestination = "login"
-    ) {
-
+    NavHost(navController = navController, startDestination = "login") {
         composable("login") {
             LoginScreen(
                 viewModel = viewModel,
-                onNavigateToRegister = {
-                    navController.navigate("register")
-                },
+                onNavigateToRegister = { navController.navigate("register") },
                 onLoginSuccess = {
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
@@ -40,19 +33,29 @@ fun AuthNavigation() {
         composable("register") {
             RegisterScreen(
                 viewModel = viewModel,
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
         composable("home") {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Bienvenido a LovePaws 🐶")
-            }
+            MascotaScreen(
+                onVerDetalle = { id -> navController.navigate("mascota/$id") },
+                onAdoptar = { id -> navController.navigate("adoptar/$id") }
+            )
+        }
+
+        composable(
+            route = "mascota/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
+        ) { backStackEntry ->
+            MascotaDetailScreen(mascotaId = backStackEntry.arguments?.getLong("id") ?: 0L)
+        }
+
+        composable(
+            route = "adoptar/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
+        ) { backStackEntry ->
+            AdoptionFormScreen(mascotaId = backStackEntry.arguments?.getLong("id") ?: 0L)
         }
     }
 }
