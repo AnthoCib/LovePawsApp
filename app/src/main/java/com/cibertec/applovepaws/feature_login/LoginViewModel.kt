@@ -19,10 +19,10 @@ class LoginViewModel(private val context: Context): ViewModel() {
         private set
 
     var loginSuccess by mutableStateOf(false)
-        private set
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
+
 
     fun login(
         username: String,

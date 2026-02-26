@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,19 +49,26 @@ class MainActivity : ComponentActivity() {
                         mascotaId = mascotaId
                     )*/
                    var pantalla by remember { mutableStateOf("home") }
+                    var reloadHome by remember { mutableStateOf(0) }
+                    var reloadLogin by remember { mutableStateOf(0) }
 
                     when (pantalla) {
-                        "home"     -> HomeScreen(
-                            onIrACatalogo  = { pantalla = "catalogo" },
-                            onIrALogin     = { pantalla = "login" },
-                            onIrARegistro  = { pantalla = "register" },
-                            onCerrarSesion = { pantalla = "home" }
-                        )
-                        "login"    -> LoginScreen(
-                            viewModel      = viewModel(factory = LoginViewModelFactory(applicationContext)),
-                            onIrARegistro  = { pantalla = "register" },
-                            onLoginSuccess = { pantalla = "home" }
-                        )
+                        "home" -> key (reloadHome) {   // ← fuerza recomposición cuando homeKey cambia
+                            HomeScreen(
+                                onIrACatalogo  = { pantalla = "catalogo" },
+                                onIrALogin     = { pantalla = "login"; reloadLogin++ },
+                                onIrARegistro  = { pantalla = "register" },
+                                onCerrarSesion = { reloadHome++; reloadLogin++}
+                            )
+                        }
+                        "login" -> key(reloadLogin) {  // ← envuelve LoginScreen con key
+                            LoginScreen(
+                                viewModel      = viewModel(factory = LoginViewModelFactory(applicationContext)),
+                                onIrARegistro  = { pantalla = "register" },
+                                onLoginSuccess = { pantalla = "home"; reloadHome++ },
+                                onVolver       = { pantalla = "home"; reloadHome++ }
+                            )
+                        }
                         "register" -> RegisterScreen(
                             onRegisterSuccess = { pantalla = "login" },
                             onCancelar        = { pantalla = "login" }
