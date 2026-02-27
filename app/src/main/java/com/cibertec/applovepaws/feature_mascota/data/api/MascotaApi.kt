@@ -7,5 +7,5 @@ interface MascotaApi {
 
 
     @GET("api/mascotas")
-    suspend fun listarMascotas(): List<MascotaDto>
+    suspend fun obtenerMascotas(): List<MascotaDto>
 }
