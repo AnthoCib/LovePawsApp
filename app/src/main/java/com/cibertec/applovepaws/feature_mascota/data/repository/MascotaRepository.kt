@@ -18,11 +18,17 @@ class MascotaRepository(
         return mascotaApi.listarMascotas()
     }
 
-    suspend fun registrarMascota(mascota: MascotaEntity) {
+    suspend fun registrarMascota(mascota: MascotaEntity): String {
         val idLocal = dao.insertar(mascota.copy(sincronizado = false)).toInt()
         if (hayInternet()) {
-            sincronizarMascotaPorId(idLocal)
+            val sincronizado = sincronizarMascotaPorId(idLocal)
+            return if (sincronizado) {
+                "Mascota registrada y sincronizada con backend"
+            } else {
+                "Mascota guardada localmente; pendiente de sincronización"
+            }
         }
+        return "Mascota guardada localmente (sin internet)"
     }
 
     suspend fun sincronizarPendientes() {
@@ -53,12 +59,12 @@ class MascotaRepository(
         }
     }
 
-    private suspend fun sincronizarMascotaPorId(idLocal: Int) {
-        val mascotaLocal = dao.obtenerPendientesSincronizacion().firstOrNull { it.id == idLocal } ?: return
-        sincronizarMascota(mascotaLocal)
+    private suspend fun sincronizarMascotaPorId(idLocal: Int): Boolean {
+        val mascotaLocal = dao.obtenerPendientesSincronizacion().firstOrNull { it.id == idLocal } ?: return false
+        return sincronizarMascota(mascotaLocal)
     }
 
-    private suspend fun sincronizarMascota(mascotaLocal: MascotaEntity) {
+    private suspend fun sincronizarMascota(mascotaLocal: MascotaEntity): Boolean {
         try {
             mascotaApi.registrarMascota(
                 RegistrarMascotaRequestDto(
@@ -73,8 +79,10 @@ class MascotaRepository(
                 )
             )
             dao.actualizarSincronizacion(mascotaLocal.id, true)
+            return true
         } catch (_: Exception) {
             // Si falla backend, se mantiene como pendiente para el próximo intento
+            return false
         }
     }
 

@@ -44,6 +44,9 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
+    val rolesDisponibles = listOf("ADOPTANTE", "GESTOR")
+    var rolSeleccionado by remember { mutableStateOf("ADOPTANTE") }
+    var rolExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
@@ -269,11 +272,51 @@ fun LoginScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    ExposedDropdownMenuBox(
+                        expanded = rolExpanded,
+                        onExpandedChange = { rolExpanded = !rolExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = rolSeleccionado,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Rol de ingreso") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = rolExpanded) },
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryBlue,
+                                unfocusedBorderColor = BorderGray,
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White
+                            )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = rolExpanded,
+                            onDismissRequest = { rolExpanded = false }
+                        ) {
+                            rolesDisponibles.forEach { rol ->
+                                DropdownMenuItem(
+                                    text = { Text(rol) },
+                                    onClick = {
+                                        rolSeleccionado = rol
+                                        rolExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // Botón iniciar sesión
                     Button(
-                        onClick = { viewModel.login(username, password) },
+                        onClick = { viewModel.login(username, password, rolSeleccionado) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -295,6 +338,17 @@ fun LoginScreen(
                                 color = Color.White
                             )
                         }
+                    }
+
+                    viewModel.successMessage?.let {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = it,
+                            color = Color(0xFF15803D),
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
 
                     // Error

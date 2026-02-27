@@ -12,7 +12,7 @@ import com.cibertec.applovepaws.feature_login.dto.LoginRequestDto
 import com.cibertec.applovepaws.feature_login.repository.AuthRepository
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val context: Context): ViewModel() {
+class LoginViewModel(private val context: Context) : ViewModel() {
 
     private val repo = AuthRepository()
     var loading by mutableStateOf(false)
@@ -20,37 +20,52 @@ class LoginViewModel(private val context: Context): ViewModel() {
 
     var loginSuccess by mutableStateOf(false)
 
+    var successMessage by mutableStateOf<String?>(null)
+        private set
+
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-
     fun login(
         username: String,
-        password: String
+        password: String,
+        rolEsperado: String
     ) {
 
         viewModelScope.launch {
 
             loading = true
             errorMessage = null
+            successMessage = null
 
             try {
 
-                val response = repo.login(LoginRequestDto(
-                    username = username,
-                    password = password
-                ))
+                val response = repo.login(
+                    LoginRequestDto(
+                        username = username,
+                        password = password
+                    )
+                )
 
                 if (response.isSuccessful) {
 
-                    val token = response.body()?.token
-                    val username = response.body()?.username
-                    if (token != null && username != null) {
-                        SessionManager.guardarSesion(context, token, username)
-                    }
-                    loginSuccess = true
+                    val body = response.body()
+                    val token = body?.token
+                    val usernameResponse = body?.username
+                    val role = body?.role
 
-                    println("TOKEN: $token")
+                    if (token != null && usernameResponse != null && role != null) {
+                        if (!role.equals(rolEsperado, ignoreCase = true)) {
+                            SessionManager.cerrarSesion(context)
+                            errorMessage = "Tu usuario tiene rol $role. Selecciona el rol correcto para ingresar."
+                        } else {
+                            SessionManager.guardarSesion(context, token, usernameResponse, role)
+                            successMessage = "Login correcto como $role"
+                            loginSuccess = true
+                        }
+                    } else {
+                        errorMessage = "Respuesta inválida del servidor"
+                    }
 
                 } else {
                     errorMessage = "Credenciales incorrectas"
@@ -64,6 +79,7 @@ class LoginViewModel(private val context: Context): ViewModel() {
         }
     }
 }
+
 class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return LoginViewModel(context) as T

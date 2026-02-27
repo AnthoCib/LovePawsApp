@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.cibertec.applovepaws.core.session.SessionManager
 import com.cibertec.applovepaws.feature_mascota.data.AppDataBase
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
@@ -18,6 +19,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
 
     private val dao = AppDataBase.getInstance(context).mascotaDao()
     private val repo = MascotaRepository(context, dao)
+    private val esGestorSesion = SessionManager.esGestor(context)
 
     var mascotas by mutableStateOf<List<MascotaDto>>(emptyList())
         private set
@@ -29,6 +31,9 @@ class MascotaViewModel(context: Context) : ViewModel() {
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
+        private set
+
+    var successMessage by mutableStateOf<String?>(null)
         private set
 
     fun cargarMascotas() {
@@ -47,6 +52,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             loading = true
             errorMessage = null
+            successMessage = null
             try {
                 repo.sincronizarPendientes()
                 mascotas = repo.obtenerMascotasLocales()
@@ -57,6 +63,8 @@ class MascotaViewModel(context: Context) : ViewModel() {
             loading = false
         }
     }
+
+    fun puedeRegistrarMascotas(): Boolean = esGestorSesion
 
     fun sincronizarPendientes() {
         viewModelScope.launch {
@@ -80,10 +88,17 @@ class MascotaViewModel(context: Context) : ViewModel() {
         estadoId: String?
     ) {
         viewModelScope.launch {
+            if (!esGestorSesion) {
+                successMessage = null
+                errorMessage = "Solo el gestor puede registrar mascotas"
+                return@launch
+            }
+
             loading = true
             errorMessage = null
+            successMessage = null
             try {
-                repo.registrarMascota(
+                val resultadoRegistro = repo.registrarMascota(
                     MascotaEntity(
                         nombre = nombre,
                         razaId = razaId,
@@ -96,6 +111,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
                     )
                 )
                 mascotas = repo.obtenerMascotasLocales()
+                successMessage = resultadoRegistro
                 registroExitoso = true
             } catch (e: Exception) {
                 errorMessage = "Error al registrar mascota"

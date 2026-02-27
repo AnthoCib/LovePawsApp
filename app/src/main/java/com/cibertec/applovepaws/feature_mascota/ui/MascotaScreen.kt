@@ -20,28 +20,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
-import coil.compose.AsyncImage
-
-
 
 @Composable
 fun MascotaScreen(
     viewModel: MascotaViewModel,
+    esGestor: Boolean,
+    mensajeRol: String,
     onIrARegistro: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.cargarMascotasLocales()
     }
 
-    Scaffold (
+    Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onIrARegistro,
-                containerColor = Color(0xFF1565C0)
-            ) {
-                Text("+", color = Color.White, fontSize = 24.sp)
+            if (esGestor) {
+                FloatingActionButton(
+                    onClick = onIrARegistro,
+                    containerColor = Color(0xFF1565C0)
+                ) {
+                    Text("+", color = Color.White, fontSize = 24.sp)
+                }
             }
         }
     ) { paddingValues ->
@@ -54,6 +56,14 @@ fun MascotaScreen(
                 CircularProgressIndicator(modifier = Modifier.padding(16.dp))
             } else {
                 LazyColumn {
+                    item {
+                        Text(
+                            text = mensajeRol,
+                            color = if (esGestor) Color(0xFF15803D) else Color(0xFF1D4ED8),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                     items(viewModel.mascotas) { mascota ->
                         MascotaItem(mascota)
                     }
@@ -64,27 +74,27 @@ fun MascotaScreen(
 }
 
 @Composable
-    fun MascotaItem(m: MascotaDto) {
+fun MascotaItem(m: MascotaDto) {
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Column(Modifier.padding(12.dp)) {
-                AsyncImage(
-                    model = m.fotoUrl,
-                    contentDescription = m.nombre,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            AsyncImage(
+                model = m.fotoUrl,
+                contentDescription = m.nombre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+            )
 
-                Text(m.nombre, style = MaterialTheme.typography.titleMedium)
+            Text(m.nombre, style = MaterialTheme.typography.titleMedium)
 
-                Text("Edad: ${m.edad}")
-                Text("Raza: ${m.razaNombre}")
-                Text("Estado: ${m.estadoDescripcion}")
-            }
+            Text("Edad: ${m.edad}")
+            Text("Raza: ${m.razaNombre}")
+            Text("Estado: ${m.estadoDescripcion}")
         }
     }
+}

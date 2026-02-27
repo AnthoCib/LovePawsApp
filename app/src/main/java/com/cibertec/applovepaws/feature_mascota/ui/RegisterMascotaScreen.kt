@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
+import kotlinx.coroutines.delay
 
 val AzulPrimario = Color(0xFF1565C0)
 
@@ -56,7 +57,10 @@ fun RegisterMascotaScreen(
     var razaExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.registroExitoso) {
-        if (viewModel.registroExitoso) onRegistroExitoso()
+        if (viewModel.registroExitoso) {
+            delay(1200)
+            onRegistroExitoso()
+        }
     }
 
     Box(
@@ -225,6 +229,11 @@ fun RegisterMascotaScreen(
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                viewModel.successMessage?.let {
+                    Text(text = it, color = Color(0xFF15803D), fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 // Error
                 viewModel.errorMessage?.let {
