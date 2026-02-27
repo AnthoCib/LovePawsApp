@@ -14,11 +14,10 @@ import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
 import kotlinx.coroutines.launch
 
-
 class MascotaViewModel(context: Context) : ViewModel() {
 
     private val dao = AppDataBase.getInstance(context).mascotaDao()
-    private val repo = MascotaRepository(dao)
+    private val repo = MascotaRepository(context, dao)
 
     var mascotas by mutableStateOf<List<MascotaDto>>(emptyList())
         private set
@@ -49,12 +48,24 @@ class MascotaViewModel(context: Context) : ViewModel() {
             loading = true
             errorMessage = null
             try {
+                repo.sincronizarPendientes()
                 mascotas = repo.obtenerMascotasLocales()
             } catch (e: Exception) {
                 Log.e("DB_ERROR", e.message ?: "Error")
                 errorMessage = "No se pudieron cargar mascotas locales"
             }
             loading = false
+        }
+    }
+
+    fun sincronizarPendientes() {
+        viewModelScope.launch {
+            try {
+                repo.sincronizarPendientes()
+                mascotas = repo.obtenerMascotasLocales()
+            } catch (e: Exception) {
+                Log.e("SYNC_ERROR", e.message ?: "Error")
+            }
         }
     }
 
