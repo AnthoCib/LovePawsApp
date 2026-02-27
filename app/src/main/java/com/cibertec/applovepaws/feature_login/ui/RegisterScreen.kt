@@ -28,7 +28,8 @@ val GrisBoton   = Color(0xFF9E9E9E)
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
     onRegisterSuccess: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    onIrAHome: () -> Unit = {}
 ) {
     var nombre    by remember { mutableStateOf("") }
     var correo    by remember { mutableStateOf("") }
@@ -79,7 +80,15 @@ fun RegisterScreen(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = onIrAHome) { Text("Inicio") }
+                    TextButton(onClick = onCancelar) { Text("Ir a Login") }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Fila 1: Username + Nombre
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {

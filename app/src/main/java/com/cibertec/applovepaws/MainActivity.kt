@@ -64,7 +64,8 @@ class MainActivity : ComponentActivity() {
 
                         "register" -> RegisterScreen(
                             onRegisterSuccess = { pantalla = "login" },
-                            onCancelar = { pantalla = "login" }
+                            onCancelar = { pantalla = "login" },
+                            onIrAHome = { pantalla = "home"; reloadHome++ }
                         )
 
                         "catalogo" -> MascotaScreen(
@@ -81,14 +82,17 @@ class MainActivity : ComponentActivity() {
                                 if (esGestor) {
                                     pantalla = "registroMascota"
                                 }
-                            }
+                            },
+                            onIrAHome = { pantalla = "home"; reloadHome++ },
+                            onIrALogin = { pantalla = "login"; reloadLogin++ }
                         )
 
                         "registroMascota" -> {
                             if (esGestor) {
                                 RegisterMascotaScreen(
                                     onRegistroExitoso = { pantalla = "catalogo" },
-                                    onCancelar = { pantalla = "catalogo" }
+                                    onCancelar = { pantalla = "catalogo" },
+                                    onIrAHome = { pantalla = "home"; reloadHome++ }
                                 )
                             } else {
                                 pantalla = "catalogo"

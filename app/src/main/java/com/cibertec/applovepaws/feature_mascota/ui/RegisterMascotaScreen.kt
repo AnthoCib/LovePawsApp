@@ -25,7 +25,8 @@ val AzulPrimario = Color(0xFF1565C0)
 @Composable
 fun RegisterMascotaScreen(
     onRegistroExitoso: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    onIrAHome: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel: MascotaViewModel = viewModel(factory = MascotaViewModelFactory(context))
@@ -93,7 +94,17 @@ fun RegisterMascotaScreen(
                     color = Color.Gray
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = onIrAHome) { Text("Inicio", color = AzulPrimario) }
+                    TextButton(onClick = onCancelar) { Text("Catálogo", color = AzulPrimario) }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Nombre
                 OutlinedTextField(

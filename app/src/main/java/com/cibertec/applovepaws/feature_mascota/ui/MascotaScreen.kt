@@ -2,10 +2,12 @@ package com.cibertec.applovepaws.feature_mascota.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -14,6 +16,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -29,7 +32,9 @@ fun MascotaScreen(
     viewModel: MascotaViewModel,
     esGestor: Boolean,
     mensajeRol: String,
-    onIrARegistro: () -> Unit = {}
+    onIrARegistro: () -> Unit = {},
+    onIrAHome: () -> Unit = {},
+    onIrALogin: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.cargarMascotasLocales()
@@ -57,6 +62,16 @@ fun MascotaScreen(
             } else {
                 LazyColumn {
                     item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TextButton(onClick = onIrAHome) { Text("Inicio") }
+                            TextButton(onClick = onIrALogin) { Text("Login") }
+                        }
+
                         Text(
                             text = mensajeRol,
                             color = if (esGestor) Color(0xFF15803D) else Color(0xFF1D4ED8),
