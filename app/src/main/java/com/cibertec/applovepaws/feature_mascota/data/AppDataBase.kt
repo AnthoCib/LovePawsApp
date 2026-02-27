@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import com.cibertec.applovepaws.feature_mascota.data.dao.MascotaDao
 import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 
-@Database(entities = [MascotaEntity::class], version = 1)
-abstract class AppDataBase : RoomDatabase(){
+@Database(entities = [MascotaEntity::class], version = 2)
+abstract class AppDataBase : RoomDatabase() {
     abstract fun mascotaDao(): MascotaDao
+
     companion object {
         @Volatile
         private var INSTANCE: AppDataBase? = null
@@ -20,7 +21,10 @@ abstract class AppDataBase : RoomDatabase(){
                     context.applicationContext,
                     AppDataBase::class.java,
                     "lovepaws_db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
+                    .also { INSTANCE = it }
             }
         }
     }

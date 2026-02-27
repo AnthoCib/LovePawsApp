@@ -18,13 +18,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
+import kotlinx.coroutines.delay
 
 val AzulPrimario = Color(0xFF1565C0)
 
 @Composable
 fun RegisterMascotaScreen(
     onRegistroExitoso: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    onIrAHome: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel: MascotaViewModel = viewModel(factory = MascotaViewModelFactory(context))
@@ -41,22 +43,25 @@ fun RegisterMascotaScreen(
 
     // Categoría
     val categorias = listOf(
-        5000 to "Cachorro", 5001 to "Joven", 5002 to "Adulto",
-        5003 to "Senior", 5004 to "Especial"
+        1 to "Cachorro", 2 to "Joven", 3 to "Adulto",
+        4 to "Senior", 5 to "Especial"
     )
     var categoriaSeleccionada by remember { mutableStateOf(categorias[0]) }
     var categoriaExpanded by remember { mutableStateOf(false) }
 
     // Raza
     val razas = listOf(
-        4000 to "Mestizo", 4001 to "Labrador", 4002 to "Pastor Alemán",
-        4003 to "Criollo", 4004 to "Siamés", 4005 to "Persa"
+        1 to "Mestizo", 2 to "Labrador", 3 to "Pastor Alemán",
+        4 to "Criollo", 5 to "Siamés", 6 to "Persa"
     )
     var razaSeleccionada by remember { mutableStateOf(razas[0]) }
     var razaExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.registroExitoso) {
-        if (viewModel.registroExitoso) onRegistroExitoso()
+        if (viewModel.registroExitoso) {
+            delay(1200)
+            onRegistroExitoso()
+        }
     }
 
     Box(
@@ -89,7 +94,17 @@ fun RegisterMascotaScreen(
                     color = Color.Gray
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = onIrAHome) { Text("Inicio", color = AzulPrimario) }
+                    TextButton(onClick = onCancelar) { Text("Catálogo", color = AzulPrimario) }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Nombre
                 OutlinedTextField(
@@ -218,13 +233,18 @@ fun RegisterMascotaScreen(
                 OutlinedTextField(
                     value = fotoUrl,
                     onValueChange = { fotoUrl = it },
-                    label = { Text("URL de foto (opcional)") },
+                    label = { Text("URL de foto (http/https)") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
+
+                viewModel.successMessage?.let {
+                    Text(text = it, color = Color(0xFF15803D), fontSize = 13.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
 
                 // Error
                 viewModel.errorMessage?.let {

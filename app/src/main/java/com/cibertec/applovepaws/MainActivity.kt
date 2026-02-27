@@ -15,74 +15,116 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.cibertec.applovepaws.core.network.RetrofitClient
-import com.cibertec.applovepaws.feature_adopcion.data.repository.AdopcionRepository
-import com.cibertec.applovepaws.feature_adopcion.SolicitudViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cibertec.applovepaws.core.session.SessionManager
 import com.cibertec.applovepaws.core.theme.AppLovePawsTheme
+import com.cibertec.applovepaws.feature_home.ui.HomeScreen
 import com.cibertec.applovepaws.feature_login.LoginViewModelFactory
 import com.cibertec.applovepaws.feature_login.ui.LoginScreen
 import com.cibertec.applovepaws.feature_login.ui.RegisterScreen
+import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
+import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
 import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
 import com.cibertec.applovepaws.feature_mascota.ui.RegisterMascotaScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.cibertec.applovepaws.feature_home.ui.HomeScreen
-import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Instanciar el repositorio con Retrofit
-        val repo = AdopcionRepository(RetrofitClient.adoptionApi)
-        val viewModel = SolicitudViewModel(repo)
-
-        // Usuario y Mascota de ejemplo (en producción vendrían de login y lista de mascotas)
-        val usuarioId = 1010
-        val mascotaId = 6001
-
         enableEdgeToEdge()
         setContent {
             MaterialTheme {
                 Surface {
-
-                    // Pantalla de Solicitud de Adopción
-                   /** SolicitudScreen(
-                        viewModel = viewModel,
-                        usuarioId = usuarioId,
-                        mascotaId = mascotaId
-                    )*/
-                   var pantalla by remember { mutableStateOf("home") }
+                    var pantalla by remember { mutableStateOf("home") }
                     var reloadHome by remember { mutableStateOf(0) }
                     var reloadLogin by remember { mutableStateOf(0) }
+                    var sessionVersion by remember { mutableStateOf(0) }
 
+                    val esGestor = remember(sessionVersion, pantalla) {
+                        SessionManager.esGestor(applicationContext)
+                    }
+                    val estaLogueado = remember(sessionVersion, pantalla) {
+                        SessionManager.estaLogueado(applicationContext)
+                    }
                     when (pantalla) {
-                        "home" -> key (reloadHome) {   // ← fuerza recomposición cuando homeKey cambia
+                        "home" -> key(reloadHome) {
                             HomeScreen(
-                                onIrACatalogo  = { pantalla = "catalogo" },
-                                onIrALogin     = { pantalla = "login"; reloadLogin++ },
-                                onIrARegistro  = { pantalla = "register" },
-                                onCerrarSesion = { reloadHome++; reloadLogin++}
+                                onIrACatalogo = { pantalla = "catalogo" },
+                                onIrALogin = { pantalla = "login"; reloadLogin++ },
+                                onIrARegistro = { pantalla = "register" },
+                                onCerrarSesion = {
+                                    SessionManager.cerrarSesion(applicationContext)
+                                    sessionVersion++
+                                    reloadHome++
+                                    reloadLogin++
+                                }
                             )
                         }
-                        "login" -> key(reloadLogin) {  // ← envuelve LoginScreen con key
+
+                        "login" -> key(reloadLogin) {
                             LoginScreen(
-                                viewModel      = viewModel(factory = LoginViewModelFactory(applicationContext)),
-                                onIrARegistro  = { pantalla = "register" },
-                                onLoginSuccess = { pantalla = "home"; reloadHome++ },
-                                onVolver       = { pantalla = "home"; reloadHome++ }
+                                viewModel = viewModel(factory = LoginViewModelFactory(applicationContext)),
+                                onIrARegistro = { pantalla = "register" },
+                                onLoginSuccess = {
+                                    sessionVersion++
+                                    pantalla = "home"
+                                    reloadHome++
+                                },
+                                onVolver = { pantalla = "home"; reloadHome++ }
                             )
                         }
+
                         "register" -> RegisterScreen(
                             onRegisterSuccess = { pantalla = "login" },
-                            onCancelar        = { pantalla = "login" }
+                            onCancelar = { pantalla = "login" },
+                            onIrAHome = { pantalla = "home"; reloadHome++ }
                         )
-                        "catalogo" -> MascotaScreen(
-                            viewModel = viewModel(factory = MascotaViewModelFactory(applicationContext)),
-                            onIrARegistro = { pantalla = "registroMascota" }
-                        )
-                        "registroMascota" -> RegisterMascotaScreen(
-                            onRegistroExitoso = { pantalla = "catalogo" },
-                            onCancelar = { pantalla = "catalogo" }
-                        )
+
+                        "catalogo" -> {
+                            val mascotaViewModel = viewModel<MascotaViewModel>(factory = MascotaViewModelFactory(applicationContext))
+                            MascotaScreen(
+                                viewModel = mascotaViewModel,
+                                esGestor = esGestor,
+                                mensajeRol = if (!estaLogueado) {
+                                    "No logueado: solo visualización de mascotas."
+                                } else if (esGestor) {
+                                    "Rol GESTOR validado: puedes añadir y sincronizar mascotas."
+                                } else {
+                                    "Rol ADOPTANTE validado: solo puedes visualizar mascotas."
+                                },
+                                onIrARegistro = {
+                                    if (esGestor) {
+                                        pantalla = "registroMascota"
+                                    }
+                                },
+                                onIrAHome = { pantalla = "home"; reloadHome++ },
+                                estaLogueado = estaLogueado,
+                                onIrALogin = { pantalla = "login"; reloadLogin++ },
+                                onCerrarSesion = {
+                                    SessionManager.cerrarSesion(applicationContext)
+                                    sessionVersion++
+                                    pantalla = "home"
+                                    reloadHome++
+                                    reloadLogin++
+                                },
+                                onSincronizar = {
+                                    if (esGestor) {
+                                        mascotaViewModel.sincronizarPendientes()
+                                    }
+                                }
+                            )
+                        }
+
+                        "registroMascota" -> {
+                            if (esGestor) {
+                                RegisterMascotaScreen(
+                                    onRegistroExitoso = { pantalla = "catalogo" },
+                                    onCancelar = { pantalla = "catalogo" },
+                                    onIrAHome = { pantalla = "home"; reloadHome++ }
+                                )
+                            } else {
+                                pantalla = "catalogo"
+                            }
+                        }
                     }
                 }
             }

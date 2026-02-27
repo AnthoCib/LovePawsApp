@@ -11,8 +11,9 @@ data class MascotaEntity(
     val razaId: Int,
     val categoriaId: Int,
     val edad: Int,
-    val sexo: String,           // "MACHO" o "HEMBRA"
+    val sexo: String,
     val descripcion: String?,
     val fotoUrl: String?,
-    val estadoId: String?
+    val estadoId: String?,
+    val sincronizado: Boolean = false
 )
