@@ -8,6 +8,9 @@ import com.cibertec.applovepaws.feature_mascota.data.dao.MascotaDao
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.dto.RegistrarMascotaRequestDto
 import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
+import java.io.File
+import java.net.URL
+import java.security.MessageDigest
 
 class MascotaRepository(
     private val context: Context,
@@ -19,6 +22,7 @@ class MascotaRepository(
     }
 
     suspend fun registrarMascota(mascota: MascotaEntity): String {
+        guardarImagenLocalDesdeUrl(mascota.fotoUrl)
         val idLocal = dao.insertar(mascota.copy(sincronizado = false)).toInt()
         if (hayInternet()) {
             val sincronizado = sincronizarMascotaPorId(idLocal)
@@ -31,12 +35,16 @@ class MascotaRepository(
         return "Mascota guardada localmente (sin internet)"
     }
 
-    suspend fun sincronizarPendientes() {
-        if (!hayInternet()) return
+    suspend fun sincronizarPendientes(): Int {
+        if (!hayInternet()) return 0
         val pendientes = dao.obtenerPendientesSincronizacion()
+        var sincronizadas = 0
         pendientes.forEach { pendiente ->
-            sincronizarMascota(pendiente)
+            if (sincronizarMascota(pendiente)) {
+                sincronizadas++
+            }
         }
+        return sincronizadas
     }
 
     suspend fun obtenerMascotasLocales(): List<MascotaDto> {
@@ -47,7 +55,7 @@ class MascotaRepository(
                 edad = entidad.edad,
                 sexo = entidad.sexo,
                 descripcion = entidad.descripcion,
-                fotoUrl = entidad.fotoUrl,
+                fotoUrl = resolverFotoLocal(entidad.fotoUrl) ?: entidad.fotoUrl,
                 categoriaId = entidad.categoriaId,
                 categoriaNombre = "Local",
                 razaId = entidad.razaId,
@@ -81,9 +89,38 @@ class MascotaRepository(
             dao.actualizarSincronizacion(mascotaLocal.id, true)
             return true
         } catch (_: Exception) {
-            // Si falla backend, se mantiene como pendiente para el próximo intento
             return false
         }
+    }
+
+    private fun guardarImagenLocalDesdeUrl(url: String?) {
+        if (url.isNullOrBlank() || !url.startsWith("http")) return
+        try {
+            val carpeta = File(context.filesDir, "mascotas")
+            if (!carpeta.exists()) carpeta.mkdirs()
+            val nombreArchivo = md5(url) + ".jpg"
+            val archivoLocal = File(carpeta, nombreArchivo)
+            if (!archivoLocal.exists()) {
+                URL(url).openStream().use { input ->
+                    archivoLocal.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun resolverFotoLocal(url: String?): String? {
+        if (url.isNullOrBlank() || !url.startsWith("http")) return url
+        val archivo = File(File(context.filesDir, "mascotas"), md5(url) + ".jpg")
+        return if (archivo.exists()) "file://${archivo.absolutePath}" else url
+    }
+
+    private fun md5(valor: String): String {
+        val digest = MessageDigest.getInstance("MD5")
+        val hash = digest.digest(valor.toByteArray())
+        return hash.joinToString("") { "%02x".format(it) }
     }
 
     private fun hayInternet(): Boolean {

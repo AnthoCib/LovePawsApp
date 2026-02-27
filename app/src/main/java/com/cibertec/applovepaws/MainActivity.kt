@@ -22,6 +22,7 @@ import com.cibertec.applovepaws.feature_home.ui.HomeScreen
 import com.cibertec.applovepaws.feature_login.LoginViewModelFactory
 import com.cibertec.applovepaws.feature_login.ui.LoginScreen
 import com.cibertec.applovepaws.feature_login.ui.RegisterScreen
+import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
 import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
 import com.cibertec.applovepaws.feature_mascota.ui.RegisterMascotaScreen
@@ -68,24 +69,32 @@ class MainActivity : ComponentActivity() {
                             onIrAHome = { pantalla = "home"; reloadHome++ }
                         )
 
-                        "catalogo" -> MascotaScreen(
-                            viewModel = viewModel(factory = MascotaViewModelFactory(applicationContext)),
-                            esGestor = esGestor,
-                            mensajeRol = if (!estaLogueado) {
-                                "No logueado: solo visualización de mascotas."
-                            } else if (esGestor) {
-                                "Rol GESTOR validado: puedes añadir y sincronizar mascotas."
-                            } else {
-                                "Rol ADOPTANTE validado: solo puedes visualizar mascotas."
-                            },
-                            onIrARegistro = {
-                                if (esGestor) {
-                                    pantalla = "registroMascota"
+                        "catalogo" -> {
+                            val mascotaViewModel = viewModel<MascotaViewModel>(factory = MascotaViewModelFactory(applicationContext))
+                            MascotaScreen(
+                                viewModel = mascotaViewModel,
+                                esGestor = esGestor,
+                                mensajeRol = if (!estaLogueado) {
+                                    "No logueado: solo visualización de mascotas."
+                                } else if (esGestor) {
+                                    "Rol GESTOR validado: puedes añadir y sincronizar mascotas."
+                                } else {
+                                    "Rol ADOPTANTE validado: solo puedes visualizar mascotas."
+                                },
+                                onIrARegistro = {
+                                    if (esGestor) {
+                                        pantalla = "registroMascota"
+                                    }
+                                },
+                                onIrAHome = { pantalla = "home"; reloadHome++ },
+                                onIrALogin = { pantalla = "login"; reloadLogin++ },
+                                onSincronizar = {
+                                    if (esGestor) {
+                                        mascotaViewModel.sincronizarPendientes()
+                                    }
                                 }
-                            },
-                            onIrAHome = { pantalla = "home"; reloadHome++ },
-                            onIrALogin = { pantalla = "login"; reloadLogin++ }
-                        )
+                            )
+                        }
 
                         "registroMascota" -> {
                             if (esGestor) {

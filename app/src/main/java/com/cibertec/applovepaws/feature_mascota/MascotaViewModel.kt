@@ -54,8 +54,11 @@ class MascotaViewModel(context: Context) : ViewModel() {
             errorMessage = null
             successMessage = null
             try {
-                repo.sincronizarPendientes()
+                val totalSincronizadas = repo.sincronizarPendientes()
                 mascotas = repo.obtenerMascotasLocales()
+                if (totalSincronizadas > 0) {
+                    successMessage = "Se sincronizaron $totalSincronizadas mascotas pendientes"
+                }
             } catch (e: Exception) {
                 Log.e("DB_ERROR", e.message ?: "Error")
                 errorMessage = "No se pudieron cargar mascotas locales"
@@ -68,9 +71,13 @@ class MascotaViewModel(context: Context) : ViewModel() {
 
     fun sincronizarPendientes() {
         viewModelScope.launch {
+            errorMessage = null
             try {
-                repo.sincronizarPendientes()
+                val totalSincronizadas = repo.sincronizarPendientes()
                 mascotas = repo.obtenerMascotasLocales()
+                if (totalSincronizadas > 0) {
+                    successMessage = "Se sincronizaron $totalSincronizadas mascotas pendientes"
+                }
             } catch (e: Exception) {
                 Log.e("SYNC_ERROR", e.message ?: "Error")
             }

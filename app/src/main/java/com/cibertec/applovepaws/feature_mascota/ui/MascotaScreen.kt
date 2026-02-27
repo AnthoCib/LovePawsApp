@@ -34,7 +34,8 @@ fun MascotaScreen(
     mensajeRol: String,
     onIrARegistro: () -> Unit = {},
     onIrAHome: () -> Unit = {},
-    onIrALogin: () -> Unit = {}
+    onIrALogin: () -> Unit = {},
+    onSincronizar: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.cargarMascotasLocales()
@@ -69,7 +70,12 @@ fun MascotaScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             TextButton(onClick = onIrAHome) { Text("Inicio") }
-                            TextButton(onClick = onIrALogin) { Text("Login") }
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                if (esGestor) {
+                                    TextButton(onClick = onSincronizar) { Text("Sincronizar") }
+                                }
+                                TextButton(onClick = onIrALogin) { Text("Login") }
+                            }
                         }
 
                         Text(
@@ -78,6 +84,24 @@ fun MascotaScreen(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
+
+                        viewModel.successMessage?.let {
+                            Text(
+                                text = it,
+                                color = Color(0xFF15803D),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        viewModel.errorMessage?.let {
+                            Text(
+                                text = it,
+                                color = Color(0xFFB91C1C),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                     items(viewModel.mascotas) { mascota ->
                         MascotaItem(mascota)
