@@ -23,8 +23,10 @@ import com.cibertec.applovepaws.feature_login.LoginViewModelFactory
 import com.cibertec.applovepaws.feature_login.ui.LoginScreen
 import com.cibertec.applovepaws.feature_login.ui.RegisterScreen
 import com.cibertec.applovepaws.feature_mascota.ui.MascotaScreen
+import com.cibertec.applovepaws.feature_mascota.ui.RegisterMascotaScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cibertec.applovepaws.feature_home.ui.HomeScreen
+import com.cibertec.applovepaws.feature_mascota.MascotaViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +75,14 @@ class MainActivity : ComponentActivity() {
                             onRegisterSuccess = { pantalla = "login" },
                             onCancelar        = { pantalla = "login" }
                         )
-                        "catalogo" -> MascotaScreen()
+                        "catalogo" -> MascotaScreen(
+                            viewModel = viewModel(factory = MascotaViewModelFactory(applicationContext)),
+                            onIrARegistro = { pantalla = "registroMascota" }
+                        )
+                        "registroMascota" -> RegisterMascotaScreen(
+                            onRegistroExitoso = { pantalla = "catalogo" },
+                            onCancelar = { pantalla = "catalogo" }
+                        )
                     }
                 }
             }

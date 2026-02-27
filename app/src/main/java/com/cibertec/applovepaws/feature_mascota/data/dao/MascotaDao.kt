@@ -10,6 +10,6 @@ interface MascotaDao{
     @Insert
     suspend fun insertar(mascota: MascotaEntity): Long
 
-    @Query("SELECT * FROM mascotas WHERE sincronizado = 0")
-    suspend fun obtenerPendientes(): List<MascotaEntity>
+    @Query("SELECT * FROM mascotas")
+    suspend fun obtenerTodas(): List<MascotaEntity>
 }

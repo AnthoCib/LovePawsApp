@@ -10,12 +10,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,34 +29,40 @@ import coil.compose.AsyncImage
 
 @Composable
 fun MascotaScreen(
-    viewModel: MascotaViewModel = viewModel()
+    viewModel: MascotaViewModel,
+    onIrARegistro: () -> Unit = {}
 ) {
-
-
     LaunchedEffect(Unit) {
         viewModel.cargarMascotas()
     }
-    Text("SI VES ESTO — COMPOSE FUNCIONA")
-    Box(modifier = Modifier.fillMaxSize()) {
 
-        if (viewModel.loading) {
-
-            CircularProgressIndicator(
-                modifier = Modifier.padding(16.dp)
-            )
-
-        } else {
-
-            LazyColumn {
-                items(viewModel.mascotas) { mascota ->
-                    MascotaItem(mascota)
+    Scaffold (
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onIrARegistro,
+                containerColor = Color(0xFF1565C0)
+            ) {
+                Text("+", color = Color.White, fontSize = 24.sp)
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (viewModel.loading) {
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            } else {
+                LazyColumn {
+                    items(viewModel.mascotas) { mascota ->
+                        MascotaItem(mascota)
+                    }
                 }
             }
-
         }
     }
 }
-
 
 @Composable
     fun MascotaItem(m: MascotaDto) {
