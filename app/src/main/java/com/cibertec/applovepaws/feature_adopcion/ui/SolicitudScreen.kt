@@ -22,7 +22,7 @@ fun SolicitudScreen(
     celular: String = "",
     correo: String = "",
     onVolver: () -> Unit,
-    onIrHome: () -> Unit   // ✅ NUEVO
+    onIrHome: () -> Unit
 ) {
     val loading by viewModel.isLoading.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
@@ -46,7 +46,6 @@ fun SolicitudScreen(
     val optVivienda = listOf("Casa con patio", "Casa sin patio", "Departamento")
     val optNinosMascotas = listOf("No", "Niños en casa", "Otras mascotas", "Niños y mascotas")
 
-    // Extras (no se guardan en BD/API actualmente)
     val optResponsable = listOf("Yo", "Yo y mi pareja", "Toda la familia")
     val optPaseos = listOf("2 veces al día", "1 vez al día", "Días alternos")
     val optFueraCasa = listOf("Dentro de casa", "Con familiar/cuidador", "Guardería temporal")
@@ -58,38 +57,33 @@ fun SolicitudScreen(
         "Pedir orientación profesional inmediata"
     )
 
-    // =========================
-    // Estado del wizard
-    // =========================
     var paso by remember { mutableStateOf(1) } // 1..4
     var error by remember { mutableStateOf<String?>(null) }
 
-    // Datos contacto (en móvil los puedes mostrar/editar; el backend usa el usuario del token)
     var sNombre by remember { mutableStateOf(solicitanteNombre) }
     var sCelular by remember { mutableStateOf(celular) }
     var sCorreo by remember { mutableStateOf(correo) }
 
-    // Preguntas guardables (BD/API)
-    var p1Horas by remember { mutableStateOf("") }           // tiempoDedicado
-    var p2Motivacion by remember { mutableStateOf("") }      // pqAdoptar
-    var p3Experiencia by remember { mutableStateOf("") }     // experiencia
-    var p4Costos by remember { mutableStateOf("") }          // cubrirCostos
-    var p5Vivienda by remember { mutableStateOf("") }        // tipoVivienda
-    var p6NinosMascotas by remember { mutableStateOf("") }   // ninosOtraMascotas
-    var p13Plan by remember { mutableStateOf("") }           // planMascota
-    var p16Info by remember { mutableStateOf("") }           // infoAdicional (texto libre)
+    var p1Horas by remember { mutableStateOf("") }
+    var p2Motivacion by remember { mutableStateOf("") }
+    var p3Experiencia by remember { mutableStateOf("") }
+    var p4Costos by remember { mutableStateOf("") }
+    var p5Vivienda by remember { mutableStateOf("") }
+    var p6NinosMascotas by remember { mutableStateOf("") }
+    var p13Plan by remember { mutableStateOf("") }
+    var p16Info by remember { mutableStateOf("") }
 
     // Extras (se irán dentro de infoAdicional)
-    var p7Segura by remember { mutableStateOf("") }          // Sí/No
+    var p7Segura by remember { mutableStateOf("") }
     var p8Responsable by remember { mutableStateOf("") }
     var p9Paseos by remember { mutableStateOf("") }
     var p10FueraCasa by remember { mutableStateOf("") }
-    var p11UnAnio by remember { mutableStateOf("") }         // Sí/No
-    var p12DiezAnios by remember { mutableStateOf("") }      // Sí/No
+    var p11UnAnio by remember { mutableStateOf("") }
+    var p12DiezAnios by remember { mutableStateOf("") }
     var p14Semanas by remember { mutableStateOf("") }
     var p15Meses by remember { mutableStateOf("") }
 
-    // Para menús (reutilizable)
+
     var menuKey by remember { mutableStateOf<String?>(null) }
 
     fun validarPaso(actual: Int): Boolean {
@@ -252,9 +246,7 @@ fun SolicitudScreen(
             )
         }
 
-        // =========================
-        // PASO 2: Hogar + P5..P10
-        // =========================
+
         if (paso == 2) {
             DropdownSimple(
                 label = "5. Tipo de vivienda",
@@ -331,9 +323,7 @@ fun SolicitudScreen(
             )
         }
 
-        // =========================
-        // PASO 3: Intereses + P11..P16
-        // =========================
+
         if (paso == 3) {
             Text("11. ¿Podrá mantener el cuidado por al menos 1 año?")
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -405,9 +395,7 @@ fun SolicitudScreen(
             )
         }
 
-        // =========================
-        // PASO 4: Confirmación
-        // =========================
+
         if (paso == 4) {
             Text("RESULTADOS DE LA SOLICITUD", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(10.dp))
@@ -443,7 +431,7 @@ fun SolicitudScreen(
                             planMascota = p13Plan,
                             infoAdicional = construirInfoAdicionalFinal()
                         )
-                        viewModel.enviarSolicitudCompleta(dto) // ✅ envía
+                        viewModel.enviarSolicitudCompleta(dto)
                     }
                 },
                 enabled = !loading,
@@ -466,7 +454,6 @@ fun SolicitudScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Botonera (Cancelar / Atrás / Siguiente) — como la web
         if (paso != 4) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 OutlinedButton(onClick = onVolver) { Text("Cancelar") }
