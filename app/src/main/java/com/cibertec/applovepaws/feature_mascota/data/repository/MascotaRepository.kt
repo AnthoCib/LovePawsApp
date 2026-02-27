@@ -1,80 +1,93 @@
 package com.cibertec.applovepaws.feature_mascota.data.repository
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.cibertec.applovepaws.feature_mascota.data.api.MascotaApi
-import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaRequestDTO
-import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaResponseDTO
-import com.cibertec.applovepaws.feature_mascota.data.dto.toEntity
+import com.cibertec.applovepaws.feature_mascota.data.dto.RegisterMascotaRequestDTO
 import com.cibertec.applovepaws.feature_mascota.data.local.dao.MascotaDao
 import com.cibertec.applovepaws.feature_mascota.data.local.entity.MascotaEntity
 import kotlinx.coroutines.flow.Flow
 
 class MascotaRepository(
+    private val context: Context,
     private val api: MascotaApi,
     private val dao: MascotaDao
 ) {
 
-    /**
-     *  Esta función EXPONE los datos locales (Room).
-     *
-     * La UI solo observa esta función.
-     * No llama directamente a la API.
-     *
-     * Room devuelve un Flow, por lo tanto:
-     * - Si la BD cambia
-     * - El Flow emite automáticamente
-     * - La UI se actualiza sola
-     */
-    fun obtenerMascotas(): Flow<List<MascotaEntity>> {
-        return dao.obtenerMascotas()
+    fun getMascotas(): Flow<List<MascotaEntity>> = dao.getAll()
+
+    suspend fun guardarLocal(mascota: MascotaEntity): Long {
+        return dao.insert(mascota.copy(sincronizado = false))
     }
 
-    /**
-     *  Esta función sincroniza con el backend (Render).
-     *
-     * Flujo:
-     * API → Convertimos DTO → Guardamos en Room → Flow emite → UI se actualiza
-     *
-     * Si no hay internet:
-     * - No pasa nada
-     * - La UI sigue mostrando datos locales
-     */
-    suspend fun sincronizarMascotas() {
-        try {
-            val response = api.listarMascotas()
+    suspend fun registrarMascota(mascota: MascotaEntity): Result {
+        val localId = guardarLocal(mascota)
+        val guardada = dao.getById(localId) ?: return Result.Error("No se pudo guardar localmente")
+
+        if (!verificarConexion()) {
+            return Result.Success("Mascota guardada localmente. Se sincronizará cuando vuelva internet")
+        }
+
+        return try {
+            val response = api.registerMascota(guardada.toRequest())
             if (response.isSuccessful) {
-                val remote = response.body().orEmpty()
-                val entities = remote.map { it.toEntity() }
-
-                dao.limpiarTabla()
-                dao.insertarMascotas(entities)
+                val remoteId = response.body()?.id
+                dao.update(guardada.copy(id = remoteId, sincronizado = true))
+                Result.Success("Mascota registrada y sincronizada")
+            } else {
+                Result.Error("Mascota guardada localmente. Falló sincronización con API")
             }
-        } catch (e: Exception) {
-            // Sin internet → usamos datos locales
+        } catch (_: Exception) {
+            Result.Error("Mascota guardada localmente. Sincronización pendiente")
         }
     }
 
-    /**
-     *  Crear mascota en el servidor
-     *
-     * Aquí estamos trabajando directamente contra la API.
-     * Luego podrías volver a llamar sincronizarMascotas()
-     * para actualizar Room.
-     */
-    suspend fun crearMascota(request: MascotaRequestDTO): Boolean {
-        return try {
-            val response = api.crear(request)
-            response.isSuccessful
-        } catch (e: Exception) {
-            false
+    suspend fun sincronizarPendientes() {
+        if (!verificarConexion()) return
+
+        val pendientes = dao.getMascotasNoSincronizadas()
+        pendientes.forEach { mascota ->
+            try {
+                val response = api.registerMascota(mascota.toRequest())
+                if (response.isSuccessful) {
+                    dao.update(
+                        mascota.copy(
+                            id = response.body()?.id,
+                            sincronizado = true
+                        )
+                    )
+                }
+            } catch (_: Exception) {
+                // Se mantiene sincronizado = false para el próximo intento.
+            }
         }
     }
 
-    suspend fun eliminarMascota(id: Int): Boolean {
-        return try {
-            val response = api.eliminar(id)
-            response.isSuccessful
-        } catch (e: Exception) {
-            false
-        }
+    fun verificarConexion(): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
+}
+
+sealed class Result {
+    data class Success(val message: String) : Result()
+    data class Error(val message: String) : Result()
+}
+
+private fun MascotaEntity.toRequest(): RegisterMascotaRequestDTO {
+    return RegisterMascotaRequestDTO(
+        nombre = nombre,
+        raza = raza,
+        edad = edad,
+        sexo = sexo,
+        descripcion = descripcion,
+        fotoUrl = fotoUrl,
+        estado = estado
+    )
 }

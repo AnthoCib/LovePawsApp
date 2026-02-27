@@ -12,7 +12,7 @@ import com.cibertec.applovepaws.feature_user.data.local.entity.UsuarioEntity
     entities = [
         MascotaEntity::class,
         UsuarioEntity::class
-    ],version = 1,
+    ],version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
