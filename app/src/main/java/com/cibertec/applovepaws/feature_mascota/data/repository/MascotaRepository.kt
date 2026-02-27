@@ -11,6 +11,7 @@ import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 import java.io.File
 import java.net.URL
 import java.security.MessageDigest
+import retrofit2.HttpException
 
 class MascotaRepository(
     private val context: Context,
@@ -25,11 +26,12 @@ class MascotaRepository(
         guardarImagenLocalDesdeUrl(mascota.fotoUrl)
         val idLocal = dao.insertar(mascota.copy(sincronizado = false)).toInt()
         if (hayInternet()) {
-            val sincronizado = sincronizarMascotaPorId(idLocal)
+            val (sincronizado, detalleError) = sincronizarMascotaPorId(idLocal)
             return if (sincronizado) {
                 "Mascota registrada y sincronizada con backend"
             } else {
-                "Mascota guardada localmente; pendiente de sincronización"
+                val detalle = detalleError?.let { " ($it)" } ?: ""
+                "Mascota guardada localmente; pendiente de sincronización$detalle"
             }
         }
         return "Mascota guardada localmente (sin internet)"
@@ -40,7 +42,8 @@ class MascotaRepository(
         val pendientes = dao.obtenerPendientesSincronizacion()
         var sincronizadas = 0
         pendientes.forEach { pendiente ->
-            if (sincronizarMascota(pendiente)) {
+            val (ok, _) = sincronizarMascota(pendiente)
+            if (ok) {
                 sincronizadas++
             }
         }
@@ -67,12 +70,13 @@ class MascotaRepository(
         }
     }
 
-    private suspend fun sincronizarMascotaPorId(idLocal: Int): Boolean {
-        val mascotaLocal = dao.obtenerPendientesSincronizacion().firstOrNull { it.id == idLocal } ?: return false
+    private suspend fun sincronizarMascotaPorId(idLocal: Int): Pair<Boolean, String?> {
+        val mascotaLocal = dao.obtenerPendientesSincronizacion().firstOrNull { it.id == idLocal }
+            ?: return false to "Registro local no encontrado"
         return sincronizarMascota(mascotaLocal)
     }
 
-    private suspend fun sincronizarMascota(mascotaLocal: MascotaEntity): Boolean {
+    private suspend fun sincronizarMascota(mascotaLocal: MascotaEntity): Pair<Boolean, String?> {
         try {
             mascotaApi.registrarMascota(
                 RegistrarMascotaRequestDto(
@@ -87,9 +91,18 @@ class MascotaRepository(
                 )
             )
             dao.actualizarSincronizacion(mascotaLocal.id, true)
-            return true
+            return true to null
+        } catch (e: HttpException) {
+            val body = e.response()?.errorBody()?.string()?.take(220)
+            val detalle = when {
+                body.isNullOrBlank() -> "HTTP ${e.code()}"
+                body.contains("Categoría inválida", ignoreCase = true) -> "Categoría inválida"
+                body.contains("Raza inválida", ignoreCase = true) -> "Raza inválida"
+                else -> "HTTP ${e.code()}"
+            }
+            return false to detalle
         } catch (_: Exception) {
-            return false
+            return false to "Error de red o backend"
         }
     }
 

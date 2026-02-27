@@ -37,22 +37,22 @@ fun RegisterMascotaScreen(
     var fotoUrl by remember { mutableStateOf("") }
 
     // Sexo
-    val sexoOpciones = listOf("M" to "Macho", "H" to "Hembra")
-    var sexoSeleccionado by remember { mutableStateOf("M") }
+    val sexoOpciones = listOf("MACHO" to "Macho", "HEMBRA" to "Hembra")
+    var sexoSeleccionado by remember { mutableStateOf("MACHO") }
     var sexoExpanded by remember { mutableStateOf(false) }
 
     // Categoría
     val categorias = listOf(
-        5000 to "Cachorro", 5001 to "Joven", 5002 to "Adulto",
-        5003 to "Senior", 5004 to "Especial"
+        1 to "Cachorro", 2 to "Joven", 3 to "Adulto",
+        4 to "Senior", 5 to "Especial"
     )
     var categoriaSeleccionada by remember { mutableStateOf(categorias[0]) }
     var categoriaExpanded by remember { mutableStateOf(false) }
 
     // Raza
     val razas = listOf(
-        4000 to "Mestizo", 4001 to "Labrador", 4002 to "Pastor Alemán",
-        4003 to "Criollo", 4004 to "Siamés", 4005 to "Persa"
+        1 to "Mestizo", 2 to "Labrador", 3 to "Pastor Alemán",
+        4 to "Criollo", 5 to "Siamés", 6 to "Persa"
     )
     var razaSeleccionada by remember { mutableStateOf(razas[0]) }
     var razaExpanded by remember { mutableStateOf(false) }
