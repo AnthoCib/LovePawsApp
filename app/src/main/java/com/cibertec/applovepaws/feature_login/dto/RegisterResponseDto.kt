@@ -1,9 +1,7 @@
 package com.cibertec.applovepaws.feature_login.dto
 
-class RegisterResponseDto( // recibes del backend
+class RegisterResponseDto(
     val message: String,
     val correo: String,
-    val token: String? = null
-
-
+    val password: String
 )

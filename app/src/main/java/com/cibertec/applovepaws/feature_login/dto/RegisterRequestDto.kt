@@ -1,6 +1,6 @@
 package com.cibertec.applovepaws.feature_login.dto
 
-class RegisterRequestDto(
+data class RegisterRequestDto(
     val username: String,
     val nombre: String,
     val correo: String,
