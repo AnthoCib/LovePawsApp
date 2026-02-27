@@ -14,7 +14,7 @@ object SessionManager {
             .putString(KEY_TOKEN, token)
             .putString(KEY_USERNAME, username)
             .putString(KEY_ROLE, role)
-            .apply()
+            .commit()
     }
 
     fun obtenerToken(context: Context): String? {
@@ -38,7 +38,7 @@ object SessionManager {
     }
 
     fun cerrarSesion(context: Context) {
-        context.getSharedPreferences(PREFS_NOMBRE, Context.MODE_PRIVATE).edit().clear().apply()
+        context.getSharedPreferences(PREFS_NOMBRE, Context.MODE_PRIVATE).edit().clear().commit()
     }
 
     fun estaLogueado(context: Context): Boolean {

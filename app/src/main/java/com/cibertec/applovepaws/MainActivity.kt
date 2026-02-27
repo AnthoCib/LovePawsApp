@@ -37,9 +37,14 @@ class MainActivity : ComponentActivity() {
                     var pantalla by remember { mutableStateOf("home") }
                     var reloadHome by remember { mutableStateOf(0) }
                     var reloadLogin by remember { mutableStateOf(0) }
+                    var sessionVersion by remember { mutableStateOf(0) }
 
-                    val esGestor = SessionManager.esGestor(applicationContext)
-                    val estaLogueado = SessionManager.estaLogueado(applicationContext)
+                    val esGestor = remember(sessionVersion, pantalla) {
+                        SessionManager.esGestor(applicationContext)
+                    }
+                    val estaLogueado = remember(sessionVersion, pantalla) {
+                        SessionManager.estaLogueado(applicationContext)
+                    }
                     when (pantalla) {
                         "home" -> key(reloadHome) {
                             HomeScreen(
@@ -48,6 +53,7 @@ class MainActivity : ComponentActivity() {
                                 onIrARegistro = { pantalla = "register" },
                                 onCerrarSesion = {
                                     SessionManager.cerrarSesion(applicationContext)
+                                    sessionVersion++
                                     reloadHome++
                                     reloadLogin++
                                 }
@@ -58,7 +64,11 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel = viewModel(factory = LoginViewModelFactory(applicationContext)),
                                 onIrARegistro = { pantalla = "register" },
-                                onLoginSuccess = { pantalla = "home"; reloadHome++ },
+                                onLoginSuccess = {
+                                    sessionVersion++
+                                    pantalla = "home"
+                                    reloadHome++
+                                },
                                 onVolver = { pantalla = "home"; reloadHome++ }
                             )
                         }
