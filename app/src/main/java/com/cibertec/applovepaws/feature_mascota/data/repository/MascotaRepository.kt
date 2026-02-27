@@ -6,17 +6,16 @@ import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 
 class MascotaRepository(
-    private val dao: MascotaDao
+    private val dao: MascotaDao? = null
 ) {
 
     suspend fun obtenerMascotasRemotas(): List<MascotaDto> {
-        val result = mascotaApi.listarMascotas()
-        println("MASCOTAS -> $result")
-        return result
+        return mascotaApi.listarMascotas()
     }
 
     suspend fun obtenerMascotasLocales(): List<MascotaDto> {
-        return dao.obtenerTodas().map { local ->
+        val localDao = dao ?: return emptyList()
+        return localDao.obtenerTodas().map { local ->
             MascotaDto(
                 id = -local.id,
                 nombre = local.nombre,
@@ -36,6 +35,7 @@ class MascotaRepository(
     }
 
     suspend fun registrarMascota(mascota: MascotaEntity) {
-        dao.insertar(mascota)
+        val localDao = dao ?: error("Base de datos local no disponible")
+        localDao.insertar(mascota)
     }
 }
