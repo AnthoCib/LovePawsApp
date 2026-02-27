@@ -14,11 +14,13 @@ import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
 import kotlinx.coroutines.launch
 
-
 class MascotaViewModel(context: Context) : ViewModel() {
 
-    private val dao = AppDataBase.getInstance(context).mascotaDao()
-    private val repo = MascotaRepository(dao)
+    private val repo = MascotaRepository(
+        dao = runCatching { AppDataBase.getInstance(context).mascotaDao() }
+            .onFailure { Log.e("DB_ERROR", "No se pudo inicializar Room", it) }
+            .getOrNull()
+    )
 
     var mascotas by mutableStateOf<List<MascotaDto>>(emptyList())
         private set
@@ -35,10 +37,15 @@ class MascotaViewModel(context: Context) : ViewModel() {
     fun cargarMascotas() {
         viewModelScope.launch {
             loading = true
+            errorMessage = null
             try {
-                mascotas = repo.obtenerMascotas()
+                val locales = repo.obtenerMascotasLocales()
+                val remotas = repo.obtenerMascotasRemotas()
+                mascotas = (locales + remotas).distinctBy { it.id to it.nombre }
             } catch (e: Exception) {
                 Log.e("API_ERROR", e.message ?: "Error")
+                mascotas = repo.obtenerMascotasLocales()
+                errorMessage = "Error al sincronizar con servidor. Mostrando mascotas locales."
             }
             loading = false
         }
