@@ -14,6 +14,7 @@ import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 import com.cibertec.applovepaws.feature_mascota.data.entity.MascotaEntity
 import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
 import kotlinx.coroutines.launch
+import java.net.URI
 
 class MascotaViewModel(context: Context) : ViewModel() {
 
@@ -112,6 +113,18 @@ class MascotaViewModel(context: Context) : ViewModel() {
         }
     }
 
+    private fun normalizarFotoUrl(url: String?): String? {
+        if (url.isNullOrBlank()) return null
+        val limpia = url.trim()
+        val conEsquema = if (limpia.startsWith("http://") || limpia.startsWith("https://")) limpia else "https://$limpia"
+        return try {
+            val uri = URI(conEsquema)
+            if (uri.host.isNullOrBlank()) null else conEsquema
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     fun registrarMascota(
         nombre: String,
         razaId: Int,
@@ -133,6 +146,13 @@ class MascotaViewModel(context: Context) : ViewModel() {
             errorMessage = null
             successMessage = null
             try {
+                val fotoUrlNormalizada = normalizarFotoUrl(fotoUrl)
+                if (fotoUrl != null && fotoUrl.isNotBlank() && fotoUrlNormalizada == null) {
+                    errorMessage = "URL de imagen inválida"
+                    loading = false
+                    return@launch
+                }
+
                 val resultadoRegistro = repo.registrarMascota(
                     MascotaEntity(
                         nombre = nombre,
@@ -141,7 +161,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
                         edad = edad,
                         sexo = sexo,
                         descripcion = descripcion,
-                        fotoUrl = fotoUrl,
+                        fotoUrl = fotoUrlNormalizada,
                         estadoId = estadoId
                     )
                 )

@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -28,6 +30,7 @@ import coil.compose.AsyncImage
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MascotaScreen(
     viewModel: MascotaViewModel,
@@ -35,7 +38,9 @@ fun MascotaScreen(
     mensajeRol: String,
     onIrARegistro: () -> Unit = {},
     onIrAHome: () -> Unit = {},
+    estaLogueado: Boolean,
     onIrALogin: () -> Unit = {},
+    onCerrarSesion: () -> Unit = {},
     onSincronizar: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
@@ -43,6 +48,20 @@ fun MascotaScreen(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("🐾 Catálogo LovePaws") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1565C0), titleContentColor = Color.White),
+                actions = {
+                    TextButton(onClick = onIrAHome) { Text("Inicio", color = Color.White) }
+                    if (estaLogueado) {
+                        TextButton(onClick = onCerrarSesion) { Text("Cerrar sesión", color = Color.White) }
+                    } else {
+                        TextButton(onClick = onIrALogin) { Text("Login", color = Color.White) }
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             if (esGestor) {
                 FloatingActionButton(
@@ -68,14 +87,10 @@ fun MascotaScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = onIrAHome) { Text("Inicio") }
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                if (esGestor) {
-                                    TextButton(onClick = onSincronizar) { Text("Sincronizar") }
-                                }
-                                TextButton(onClick = onIrALogin) { Text("Login") }
+                            if (esGestor) {
+                                TextButton(onClick = onSincronizar) { Text("Sincronizar") }
                             }
                         }
 

@@ -97,7 +97,15 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onIrAHome = { pantalla = "home"; reloadHome++ },
+                                estaLogueado = estaLogueado,
                                 onIrALogin = { pantalla = "login"; reloadLogin++ },
+                                onCerrarSesion = {
+                                    SessionManager.cerrarSesion(applicationContext)
+                                    sessionVersion++
+                                    pantalla = "home"
+                                    reloadHome++
+                                    reloadLogin++
+                                },
                                 onSincronizar = {
                                     if (esGestor) {
                                         mascotaViewModel.sincronizarPendientes()

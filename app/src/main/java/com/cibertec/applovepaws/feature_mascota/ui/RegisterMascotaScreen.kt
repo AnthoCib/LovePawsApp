@@ -37,8 +37,8 @@ fun RegisterMascotaScreen(
     var fotoUrl by remember { mutableStateOf("") }
 
     // Sexo
-    val sexoOpciones = listOf("MACHO" to "Macho", "HEMBRA" to "Hembra")
-    var sexoSeleccionado by remember { mutableStateOf("MACHO") }
+    val sexoOpciones = listOf("M" to "Macho", "H" to "Hembra")
+    var sexoSeleccionado by remember { mutableStateOf("M") }
     var sexoExpanded by remember { mutableStateOf(false) }
 
     // Categoría
@@ -233,7 +233,7 @@ fun RegisterMascotaScreen(
                 OutlinedTextField(
                     value = fotoUrl,
                     onValueChange = { fotoUrl = it },
-                    label = { Text("URL de foto (opcional)") },
+                    label = { Text("URL de foto (http/https)") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     singleLine = true
