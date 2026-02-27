@@ -17,9 +17,11 @@ import kotlinx.coroutines.launch
 
 class MascotaViewModel(context: Context) : ViewModel() {
 
-    private val dao = AppDataBase.getInstance(context).mascotaDao()
-    private val repo = MascotaRepository(context, dao)
-    private val esGestorSesion = SessionManager.esGestor(context)
+    private val appContext = context.applicationContext
+    private val dao = AppDataBase.getInstance(appContext).mascotaDao()
+    private val repo = MascotaRepository(appContext, dao)
+
+    private fun esGestorSesion(): Boolean = SessionManager.esGestor(appContext)
 
     var mascotas by mutableStateOf<List<MascotaDto>>(emptyList())
         private set
@@ -67,7 +69,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun puedeRegistrarMascotas(): Boolean = esGestorSesion
+    fun puedeRegistrarMascotas(): Boolean = esGestorSesion()
 
     fun sincronizarPendientes() {
         viewModelScope.launch {
@@ -95,7 +97,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
         estadoId: String?
     ) {
         viewModelScope.launch {
-            if (!esGestorSesion) {
+            if (!esGestorSesion()) {
                 successMessage = null
                 errorMessage = "Solo el gestor puede registrar mascotas"
                 return@launch

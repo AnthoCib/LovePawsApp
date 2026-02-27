@@ -33,7 +33,8 @@ object SessionManager {
     }
 
     fun esGestor(context: Context): Boolean {
-        return obtenerRole(context)?.equals("GESTOR", ignoreCase = true) == true
+        val role = obtenerRole(context)?.trim()?.uppercase() ?: return false
+        return role == "GESTOR" || role == "ROLE_GESTOR" || role.contains("GESTOR")
     }
 
     fun cerrarSesion(context: Context) {
