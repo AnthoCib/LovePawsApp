@@ -1,81 +1,148 @@
 package com.cibertec.applovepaws.feature_mascota.ui
 
-import androidx.compose.foundation.layout.Box
+import android.app.Application
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
-import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-
-
+import androidx.room.Room
+import com.cibertec.applovepaws.core.database.AppDatabase
+import com.cibertec.applovepaws.core.network.RetrofitClient
+import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
+import com.cibertec.applovepaws.feature_mascota.data.repository.MascotaRepository
 
 @Composable
-fun MascotaScreen(
-    viewModel: MascotaViewModel = viewModel()
+fun RegisterMascotaScreen(
+    currentRole: String
 ) {
+    val context = LocalContext.current
+    val appContext = context.applicationContext
 
+    val mascotaViewModel: MascotaViewModel = viewModel(
+        factory = MascotaViewModelFactory(appContext as Application, currentRole)
+    )
+
+    val mascotas by mascotaViewModel.mascotas.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.cargarMascotas()
+        mascotaViewModel.sincronizarPendientes()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("Registro de Mascotas", style = MaterialTheme.typography.headlineSmall)
 
-        if (viewModel.loading) {
-
-            CircularProgressIndicator(
-                modifier = Modifier.padding(16.dp)
+        if (!mascotaViewModel.isGestor) {
+            Text(
+                text = "Solo los gestores pueden registrar mascotas",
+                color = MaterialTheme.colorScheme.error
             )
-
-        } else {
-
-            LazyColumn {
-                items(viewModel.mascotas) { mascota ->
-                    MascotaItem(mascota)
-                }
-            }
-
         }
+
+        OutlinedTextField(
+            value = mascotaViewModel.formState.nombre,
+            onValueChange = mascotaViewModel::onNombreChange,
+            label = { Text("Nombre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.raza,
+            onValueChange = mascotaViewModel::onRazaChange,
+            label = { Text("Raza") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.edad,
+            onValueChange = mascotaViewModel::onEdadChange,
+            label = { Text("Edad") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.sexo,
+            onValueChange = mascotaViewModel::onSexoChange,
+            label = { Text("Sexo") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.descripcion,
+            onValueChange = mascotaViewModel::onDescripcionChange,
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.fotoUrl,
+            onValueChange = mascotaViewModel::onFotoUrlChange,
+            label = { Text("Foto URL (opcional)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        OutlinedTextField(
+            value = mascotaViewModel.formState.estado,
+            onValueChange = mascotaViewModel::onEstadoChange,
+            label = { Text("Estado") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = mascotaViewModel::registrarMascota,
+            enabled = mascotaViewModel.isGestor && !mascotaViewModel.loading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Registrar Mascota")
+        }
+
+        if (mascotaViewModel.loading) {
+            CircularProgressIndicator()
+        }
+
+        mascotaViewModel.message?.let {
+            Text(
+                text = it,
+                color = if (it.contains("registrada", true)) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+        }
+
+        Text("Mascotas locales: ${mascotas.size}")
     }
 }
 
-
 @Composable
-    fun MascotaItem(m: MascotaDto) {
+fun MascotaScreen(currentRole: String = "ADOPTANTE") {
+    RegisterMascotaScreen(currentRole = currentRole)
+}
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Column(Modifier.padding(12.dp)) {
-                AsyncImage(
-                    model = m.fotoUrl,
-                    contentDescription = m.nombre,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                )
-
-                Text(m.nombre, style = MaterialTheme.typography.titleMedium)
-
-                Text("Edad: ${m.edad}")
-                Text("Raza: ${m.razaNombre}")
-                Text("Estado: ${m.estadoDescripcion}")
-            }
-        }
+private class MascotaViewModelFactory(
+    private val application: Application,
+    private val role: String
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        val db = Room.databaseBuilder(application, AppDatabase::class.java, "lovepaws-db")
+            .fallbackToDestructiveMigration()
+            .build()
+        val repository = MascotaRepository(
+            context = application,
+            api = RetrofitClient.mascotaApi,
+            dao = db.mascotaDao()
+        )
+        return MascotaViewModel(repository, role) as T
     }
+}

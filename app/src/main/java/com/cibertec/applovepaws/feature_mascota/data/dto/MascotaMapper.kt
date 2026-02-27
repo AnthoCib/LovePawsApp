@@ -7,11 +7,11 @@ fun MascotaResponseDTO.toEntity(): MascotaEntity {
         id = id,
         nombre = nombre,
         raza = raza,
-        categoria = categoria,
         edad = edad,
         sexo = sexo,
-        descripcion = descripcion,
-        fotoUrl = fotoUrl,
-        estado = estado
+        descripcion = descripcion.orEmpty(),
+        fotoUrl = fotoUrl.orEmpty(),
+        estado = estado,
+        sincronizado = true
     )
 }
