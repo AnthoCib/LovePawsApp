@@ -1,81 +1,171 @@
 package com.cibertec.applovepaws.feature_mascota.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 
-
-
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MascotaScreen(
-    viewModel: MascotaViewModel = viewModel()
+    viewModel: MascotaViewModel,
+    esGestor: Boolean,
+    mensajeRol: String,
+    onIrARegistro: () -> Unit = {},
+    onIrAHome: () -> Unit = {},
+    estaLogueado: Boolean,
+    onIrALogin: () -> Unit = {},
+    onCerrarSesion: () -> Unit = {},
+    onSincronizar: () -> Unit = {}
 ) {
-
-
     LaunchedEffect(Unit) {
-        viewModel.cargarMascotas()
+        viewModel.cargarMascotasRoom()
     }
-    Text("SI VES ESTO — COMPOSE FUNCIONA")
-    Box(modifier = Modifier.fillMaxSize()) {
 
-        if (viewModel.loading) {
-
-            CircularProgressIndicator(
-                modifier = Modifier.padding(16.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("🐾 Catálogo LovePaws") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF1565C0), titleContentColor = Color.White),
+                actions = {
+                    TextButton(onClick = onIrAHome) { Text("Inicio", color = Color.White) }
+                    if (estaLogueado) {
+                        TextButton(onClick = onCerrarSesion) { Text("Cerrar sesión", color = Color.White) }
+                    } else {
+                        TextButton(onClick = onIrALogin) { Text("Login", color = Color.White) }
+                    }
+                }
             )
-
-        } else {
-
-            LazyColumn {
-                items(viewModel.mascotas) { mascota ->
-                    MascotaItem(mascota)
+        },
+        floatingActionButton = {
+            if (esGestor) {
+                FloatingActionButton(
+                    onClick = onIrARegistro,
+                    containerColor = Color(0xFF1565C0)
+                ) {
+                    Text("+", color = Color.White, fontSize = 24.sp)
                 }
             }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (viewModel.loading) {
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            } else {
+                LazyColumn {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            if (esGestor) {
+                                TextButton(onClick = onSincronizar) { Text("Sincronizar") }
+                            }
+                        }
 
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Fuente: ${viewModel.fuenteActual.name}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Button(onClick = { viewModel.alternarFuenteListado() }) {
+                                val destino = if (viewModel.fuenteActual == MascotaViewModel.FuenteListado.ROOM) "API" else "ROOM"
+                                Text("Cambiar a $destino")
+                            }
+                        }
+
+                        Text(
+                            text = mensajeRol,
+                            color = if (esGestor) Color(0xFF15803D) else Color(0xFF1D4ED8),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        viewModel.successMessage?.let {
+                            Text(
+                                text = it,
+                                color = Color(0xFF15803D),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        viewModel.errorMessage?.let {
+                            Text(
+                                text = it,
+                                color = Color(0xFFB91C1C),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    items(viewModel.mascotas) { mascota ->
+                        MascotaItem(mascota)
+                    }
+                }
+            }
         }
     }
 }
 
-
 @Composable
-    fun MascotaItem(m: MascotaDto) {
+fun MascotaItem(m: MascotaDto) {
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Column(Modifier.padding(12.dp)) {
-                AsyncImage(
-                    model = m.fotoUrl,
-                    contentDescription = m.nombre,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                )
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            AsyncImage(
+                model = m.fotoUrl,
+                contentDescription = m.nombre,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+            )
 
-                Text(m.nombre, style = MaterialTheme.typography.titleMedium)
+            Text(m.nombre, style = MaterialTheme.typography.titleMedium)
 
-                Text("Edad: ${m.edad}")
-                Text("Raza: ${m.razaNombre}")
-                Text("Estado: ${m.estadoDescripcion}")
-            }
+            Text("Edad: ${m.edad}")
+            Text("Raza: ${m.razaNombre}")
+            Text("Estado: ${m.estadoDescripcion}")
         }
     }
+}

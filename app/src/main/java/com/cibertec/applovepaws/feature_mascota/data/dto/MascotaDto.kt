@@ -1,6 +1,6 @@
 package com.cibertec.applovepaws.feature_mascota.data.dto
 
-class MascotaDto(
+data class MascotaDto(
     val id: Int,
     val nombre: String,
     val edad: Int,
