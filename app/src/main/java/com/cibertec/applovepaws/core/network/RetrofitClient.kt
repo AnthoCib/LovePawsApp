@@ -1,6 +1,7 @@
 package com.cibertec.applovepaws.core.network
 
 import com.cibertec.applovepaws.feature_adopcion.data.api.AdoptionApi
+import com.cibertec.applovepaws.feature_login.api.AuthApiService
 import com.cibertec.applovepaws.feature_mascota.data.api.MascotaApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -9,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2:8080/" // Cambia por tu host
+    private const val BASE_URL = "https://lovepaws.onrender.com/" // Cambia por tu host
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -36,4 +37,7 @@ object RetrofitClient {
         retrofit.create(MascotaApi::class.java)
     }
 
+    val authApiService: AuthApiService by lazy {
+        retrofit.create(AuthApiService::class.java)
+    }
 }
