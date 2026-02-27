@@ -1,6 +1,6 @@
 package com.cibertec.applovepaws.feature_adopcion.data.dto
 
-class SolicitudAdopcionDto(
+data class SolicitudAdopcionDto(
     val id: Int? = null,
     val mascota: MascotaRefDto,
     val pqAdoptar: String,
@@ -11,8 +11,8 @@ class SolicitudAdopcionDto(
     val experiencia: String? = null,
     val ninosOtraMascotas: String? = null,
     val infoAdicional: String? = null,
-    val estado: EstadoRefDto = EstadoRefDto("PENDIENTE")
+    val estado: EstadoRefDto = EstadoRefDto(id = "PENDIENTE")
 )
 
-class MascotaRefDto(val id: Int)
-class EstadoRefDto(val id: String)
+data class MascotaRefDto(val id: Int)
+data class EstadoRefDto(val id: String)
