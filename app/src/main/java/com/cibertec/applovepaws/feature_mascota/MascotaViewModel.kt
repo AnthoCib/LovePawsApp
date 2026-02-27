@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 
 class MascotaViewModel(context: Context) : ViewModel() {
 
+    enum class FuenteListado { API, ROOM }
+
     private val appContext = context.applicationContext
     private val dao = AppDataBase.getInstance(appContext).mascotaDao()
     private val repo = MascotaRepository(appContext, dao)
@@ -38,34 +40,53 @@ class MascotaViewModel(context: Context) : ViewModel() {
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    fun cargarMascotas() {
+    var fuenteActual by mutableStateOf(FuenteListado.ROOM)
+        private set
+
+    fun cargarMascotasApi() {
         viewModelScope.launch {
             loading = true
+            errorMessage = null
+            successMessage = null
+            fuenteActual = FuenteListado.API
             try {
                 mascotas = repo.obtenerMascotas()
+                successMessage = "Listado cargado desde API Rest"
             } catch (e: Exception) {
                 Log.e("API_ERROR", e.message ?: "Error")
+                errorMessage = "No se pudo cargar listado desde API"
             }
             loading = false
         }
     }
 
-    fun cargarMascotasLocales() {
+    fun cargarMascotasRoom() {
         viewModelScope.launch {
             loading = true
             errorMessage = null
             successMessage = null
+            fuenteActual = FuenteListado.ROOM
             try {
                 val totalSincronizadas = repo.sincronizarPendientes()
                 mascotas = repo.obtenerMascotasLocales()
-                if (totalSincronizadas > 0) {
-                    successMessage = "Se sincronizaron $totalSincronizadas mascotas pendientes"
+                successMessage = if (totalSincronizadas > 0) {
+                    "Listado ROOM cargado. Se sincronizaron $totalSincronizadas pendientes"
+                } else {
+                    "Listado cargado desde Room local"
                 }
             } catch (e: Exception) {
                 Log.e("DB_ERROR", e.message ?: "Error")
-                errorMessage = "No se pudieron cargar mascotas locales"
+                errorMessage = "No se pudieron cargar mascotas desde Room"
             }
             loading = false
+        }
+    }
+
+    fun alternarFuenteListado() {
+        if (fuenteActual == FuenteListado.ROOM) {
+            cargarMascotasApi()
+        } else {
+            cargarMascotasRoom()
         }
     }
 
@@ -76,12 +97,17 @@ class MascotaViewModel(context: Context) : ViewModel() {
             errorMessage = null
             try {
                 val totalSincronizadas = repo.sincronizarPendientes()
-                mascotas = repo.obtenerMascotasLocales()
-                if (totalSincronizadas > 0) {
-                    successMessage = "Se sincronizaron $totalSincronizadas mascotas pendientes"
+                if (fuenteActual == FuenteListado.ROOM) {
+                    mascotas = repo.obtenerMascotasLocales()
+                }
+                successMessage = if (totalSincronizadas > 0) {
+                    "Sincronización manual: $totalSincronizadas mascotas"
+                } else {
+                    "No hay mascotas pendientes por sincronizar"
                 }
             } catch (e: Exception) {
                 Log.e("SYNC_ERROR", e.message ?: "Error")
+                errorMessage = "Error al sincronizar pendientes"
             }
         }
     }
@@ -119,7 +145,9 @@ class MascotaViewModel(context: Context) : ViewModel() {
                         estadoId = estadoId
                     )
                 )
-                mascotas = repo.obtenerMascotasLocales()
+                if (fuenteActual == FuenteListado.ROOM) {
+                    mascotas = repo.obtenerMascotasLocales()
+                }
                 successMessage = resultadoRegistro
                 registroExitoso = true
             } catch (e: Exception) {
