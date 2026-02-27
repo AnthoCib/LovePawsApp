@@ -35,10 +35,16 @@ class MascotaViewModel(context: Context) : ViewModel() {
     fun cargarMascotas() {
         viewModelScope.launch {
             loading = true
+            errorMessage = null
             try {
-                mascotas = repo.obtenerMascotas()
+                val locales = repo.obtenerMascotasLocales()
+                val remotas = repo.obtenerMascotasRemotas()
+                mascotas = (locales + remotas).distinctBy { it.id to it.nombre }
             } catch (e: Exception) {
                 Log.e("API_ERROR", e.message ?: "Error")
+                val locales = repo.obtenerMascotasLocales()
+                mascotas = locales
+                errorMessage = "Error al sincronizar con servidor. Mostrando mascotas locales."
             }
             loading = false
         }

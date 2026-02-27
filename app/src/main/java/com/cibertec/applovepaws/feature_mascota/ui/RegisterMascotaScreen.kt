@@ -251,7 +251,7 @@ fun RegisterMascotaScreen(
                                 edad = edad.toIntOrNull() ?: 0,
                                 sexo = sexoSeleccionado,
                                 descripcion = descripcion.ifBlank { null },
-                                fotoUrl = fotoUrl.ifBlank { null },
+                                fotoUrl = fotoUrl.trim().ifBlank { null },
                                 estadoId = "DISPONIBLE"
                             )
                         },
