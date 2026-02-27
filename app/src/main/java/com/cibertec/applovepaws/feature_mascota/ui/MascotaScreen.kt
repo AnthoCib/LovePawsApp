@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
 import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 
 
@@ -33,7 +32,7 @@ fun MascotaScreen(
     onIrARegistro: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-        viewModel.cargarMascotas()
+        viewModel.cargarMascotasLocales()
     }
 
     Scaffold (

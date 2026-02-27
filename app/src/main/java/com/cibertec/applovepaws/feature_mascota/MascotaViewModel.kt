@@ -44,6 +44,20 @@ class MascotaViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun cargarMascotasLocales() {
+        viewModelScope.launch {
+            loading = true
+            errorMessage = null
+            try {
+                mascotas = repo.obtenerMascotasLocales()
+            } catch (e: Exception) {
+                Log.e("DB_ERROR", e.message ?: "Error")
+                errorMessage = "No se pudieron cargar mascotas locales"
+            }
+            loading = false
+        }
+    }
+
     fun registrarMascota(
         nombre: String,
         razaId: Int,
@@ -70,6 +84,7 @@ class MascotaViewModel(context: Context) : ViewModel() {
                         estadoId = estadoId
                     )
                 )
+                mascotas = repo.obtenerMascotasLocales()
                 registroExitoso = true
             } catch (e: Exception) {
                 errorMessage = "Error al registrar mascota"
