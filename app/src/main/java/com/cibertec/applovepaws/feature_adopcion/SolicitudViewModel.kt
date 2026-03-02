@@ -16,8 +16,13 @@ class SolicitudViewModel(private val repo: AdopcionRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> get() = _mensaje
 
+    fun limpiarMensaje() {
+        _mensaje.value = null
+    }
+
     fun enviarSolicitud(usuarioId: Int, mascotaId: Int, pqAdoptar: String) {
         viewModelScope.launch {
+            _mensaje.value = null
             _isLoading.value = true
             val solicitud = SolicitudAdopcionDto(
                 usuarioId = usuarioId,

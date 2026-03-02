@@ -1,5 +1,6 @@
 package com.cibertec.applovepaws.feature_mascota.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,11 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.cibertec.applovepaws.feature_mascota.MascotaViewModel
+import com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto
 
 @Composable
 fun MascotaScreen(
     viewModel: MascotaViewModel,
-    onIrARegistro: () -> Unit = {}
+    onIrARegistro: () -> Unit = {},
+    onSeleccionarMascota: (MascotaDto) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         viewModel.cargarMascotas()
@@ -72,7 +75,10 @@ fun MascotaScreen(
 
                     LazyColumn {
                         items(viewModel.mascotas) { mascota ->
-                            MascotaItem(mascota)
+                            MascotaItem(
+                                m = mascota,
+                                onClick = { onSeleccionarMascota(mascota) }
+                            )
                         }
                     }
                 }
@@ -82,11 +88,12 @@ fun MascotaScreen(
 }
 
 @Composable
-fun MascotaItem(m: com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto) {
+fun MascotaItem(m: MascotaDto, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .clickable { onClick() }
     ) {
         Column(Modifier.padding(12.dp)) {
             val fotoValida = m.fotoUrl?.takeIf {
@@ -115,6 +122,12 @@ fun MascotaItem(m: com.cibertec.applovepaws.feature_mascota.data.dto.MascotaDto)
             Text("Edad: ${m.edad}")
             Text("Raza: ${m.razaNombre ?: "No especificada"}")
             Text("Estado: ${m.estadoDescripcion ?: "Sin estado"}")
+            Text(
+                text = "Toca para ver detalle y adoptar",
+                color = Color(0xFF1565C0),
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 6.dp)
+            )
         }
     }
 }
